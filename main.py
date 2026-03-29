@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QLabel, QHBoxLayout, QLineEdit, QSpinBox,
     QTableWidget, QTableWidgetItem, QScrollArea
 )
+from PyQt5.QtCore import Qt
 
 
 class Task:
@@ -30,13 +31,13 @@ class TaskApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Task Planner")
-        self.setFixedSize(800, 600)
 
         self.tasks = []
 
         self.init_ui()
         self.load_tasks()
         self.refresh_table()
+        self.editing_task = None
 
     def init_ui(self):
         main_layout = QHBoxLayout()
@@ -49,24 +50,21 @@ class TaskApp(QWidget):
 
         # TABLE
         self.table = QTableWidget()
-        self.table.setColumnCount(5)
-        self.table.setColumnWidth(0,125)
-        self.table.setColumnWidth(1,125)
-        self.table.setColumnWidth(2,125)
-        self.table.setColumnWidth(3,150)
-        self.table.setColumnWidth(4,125)
+        self.table.setColumnCount(6)
+        self.table.setColumnWidth(0,300)
+        self.table.setColumnWidth(1,300)
+        self.table.setColumnWidth(2,300)
+        self.table.setColumnWidth(3,300)
+        self.table.setColumnWidth(4,300)
+        self.table.setColumnWidth(5,300)
         self.table.setHorizontalHeaderLabels([
-            "Task Name", "Hours/Day", "Days Left", "Days Completed", "Action"
+            "Task Name", "Hours/Day", "Days Left", "Days Completed", "Action", "Edit"
         ])
 
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
 
-        self.table_scroll = QScrollArea()
-        self.table_scroll.setWidgetResizable(True)
-        self.table_scroll.setWidget(self.table)
-
-        left_layout.addWidget(self.table_scroll)
+        left_layout.addWidget(self.table)
         left_layout.addWidget(self.add_btn)
         # ================= SIDE PANEL =================
         self.side_panel = QWidget()
@@ -90,9 +88,9 @@ class TaskApp(QWidget):
 
         panel_layout.addWidget(QLabel("Task Name"))
         panel_layout.addWidget(self.name_input)
-        panel_layout.addWidget(QLabel("Total Hours"))
+        panel_layout.addWidget(QLabel("How many Hours per Day"))
         panel_layout.addWidget(self.hours_input)
-        panel_layout.addWidget(QLabel("Total Days"))
+        panel_layout.addWidget(QLabel("How many Days"))
         panel_layout.addWidget(self.days_input)
         panel_layout.addSpacing(10)
         panel_layout.addWidget(self.submit_btn)
@@ -100,6 +98,11 @@ class TaskApp(QWidget):
 
         self.side_panel.setLayout(panel_layout)
         self.side_panel.hide()
+
+        self.table.setSelectionMode(QTableWidget.NoSelection)
+        self.table.setFocusPolicy(Qt.NoFocus)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectItems)
 
         # ================= MAIN =================
         main_layout.addLayout(left_layout)
@@ -110,30 +113,55 @@ class TaskApp(QWidget):
         # ================= STYLE =================
         self.setStyleSheet("""
             QWidget {
+                background-color: #121212;
+                color: white;
                 font-size: 16px;
             }
 
             QTableWidget {
-                gridline-color: #ccc;
+                background-color: #2b2b2b;
+                color: white;
+                gridline-color: #444;
             }
 
             QHeaderView::section {
-                font-size: 16px;
+                background-color: #1f1f1f;
+                color: white;
                 font-weight: bold;
                 padding: 6px;
+                border: 1px solid #444;
             }
 
+            QTableWidget QPushButton {
+                background-color: transparent;
+                border: none;
+                color: white;
+                padding: 0px;
+            }
+
+            /* 🔹 NORMAL BUTTONS (side panel, add button) */
             QPushButton {
+                background-color: #3a3a3a;
+                color: white;
+                border: none;
                 padding: 6px;
+                border-radius: 4px;
+            }
+
+            QPushButton:hover {
+                background-color: #505050;
             }
 
             QLineEdit, QSpinBox {
+                background-color: #2b2b2b;
+                color: white;
+                border: 1px solid #555;
                 padding: 4px;
             }
 
             QWidget#sidePanel {
-                background-color: #f4f4f4;
-                border-left: 2px solid #ccc;
+                background-color: #1a1a1a;
+                border-left: 2px solid #444;
                 padding: 10px;
             }
         """)
@@ -141,6 +169,13 @@ class TaskApp(QWidget):
     # ================= LOGIC =================
 
     def open_add_panel(self):
+        self.editing_task = None
+        self.name_input.clear()
+        self.hours_input.setValue(1)
+        self.days_input.setValue(1)
+
+        self.submit_btn.setText("Submit")  # optional UX fix
+
         self.side_panel.show()
 
     def add_task_from_panel(self):
@@ -151,12 +186,21 @@ class TaskApp(QWidget):
         if not name:
             return
 
-        task = Task(name, hours, days)
-        self.tasks.append(task)
+        if self.editing_task:
+            self.editing_task.name = name
+            self.editing_task.total_hours = hours
+            self.editing_task.total_days = days
+
+            self.editing_task = None
+
+        else:
+            task = Task(name, hours, days)
+            self.tasks.append(task)
 
         self.refresh_table()
         self.save_tasks()
 
+        # Reset inputs
         self.name_input.clear()
         self.hours_input.setValue(1)
         self.days_input.setValue(1)
@@ -164,6 +208,11 @@ class TaskApp(QWidget):
         self.side_panel.hide()
 
     def refresh_table(self):
+        if len(self.tasks) == 0:
+            self.table.hide()
+            return
+        else:
+            self.table.show()
         today = date.today().isoformat()
         self.table.setRowCount(len(self.tasks))
 
@@ -179,6 +228,20 @@ class TaskApp(QWidget):
                 btn.setEnabled(False)
             btn.clicked.connect(lambda _, t=task: self.complete_day(t))
             self.table.setCellWidget(row, 4, btn)
+
+            edit_btn = QPushButton("Edit")
+            edit_btn.clicked.connect(lambda _, t=task: self.edit_task(t))
+            self.table.setCellWidget(row, 5, edit_btn)
+
+        row_count = len(self.tasks)
+        row_height = self.table.verticalHeader().defaultSectionSize()
+        header_height = self.table.horizontalHeader().height()
+        total_height = header_height + (row_height * row_count) + 2
+
+        # Limit max height so scrolling kicks in
+        max_height = 300
+
+        self.table.setMaximumHeight(min(total_height, max_height))
 
     def complete_day(self, task):
         from datetime import date
@@ -230,6 +293,16 @@ class TaskApp(QWidget):
             task.last_completed_date = item.get("last_completed_date", None)
             self.tasks.append(task)
 
+    def edit_task(self, task):
+        self.editing_task = task
+        self.submit_btn.setText("Update Task")
+
+        self.name_input.setText(task.name)
+        self.hours_input.setValue(task.total_hours)
+        self.days_input.setValue(task.total_days)
+
+        self.side_panel.show()
+
     def closeEvent(self, event):
         self.save_tasks()
         event.accept()
@@ -239,5 +312,5 @@ class TaskApp(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = TaskApp()
-    window.show()
+    window.showMaximized()
     sys.exit(app.exec_())
