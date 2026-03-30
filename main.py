@@ -2,12 +2,15 @@ import json
 import os
 import sys
 from datetime import date
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QPushButton,
-    QLabel, QHBoxLayout, QLineEdit, QSpinBox,
-    QTableWidget, QTableWidgetItem, QScrollArea
-)
+
+from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (
+    QApplication, QWidget,
+    QHBoxLayout, QLineEdit, QSpinBox,
+    QTableWidget, QTableWidgetItem
+)
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton
 
 
 class Task:
@@ -51,12 +54,12 @@ class TaskApp(QWidget):
         # TABLE
         self.table = QTableWidget()
         self.table.setColumnCount(6)
-        self.table.setColumnWidth(0,300)
-        self.table.setColumnWidth(1,300)
-        self.table.setColumnWidth(2,300)
-        self.table.setColumnWidth(3,300)
-        self.table.setColumnWidth(4,300)
-        self.table.setColumnWidth(5,300)
+        self.table.setColumnWidth(0, 300)
+        self.table.setColumnWidth(1, 300)
+        self.table.setColumnWidth(2, 300)
+        self.table.setColumnWidth(3, 300)
+        self.table.setColumnWidth(4, 300)
+        self.table.setColumnWidth(5, 300)
         self.table.setHorizontalHeaderLabels([
             "Task Name", "Hours/Day", "Days Left", "Days Completed", "Action", "Edit"
         ])
@@ -66,6 +69,7 @@ class TaskApp(QWidget):
 
         left_layout.addWidget(self.table)
         left_layout.addWidget(self.add_btn)
+
         # ================= SIDE PANEL =================
         self.side_panel = QWidget()
         self.side_panel.setObjectName("sidePanel")
@@ -83,6 +87,10 @@ class TaskApp(QWidget):
         self.submit_btn = QPushButton("Submit")
         self.submit_btn.clicked.connect(self.add_task_from_panel)
 
+        self.delete_btn = QPushButton("Delete Task")
+        self.delete_btn.clicked.connect(self.delete_task)
+        self.delete_btn.hide()
+
         self.close_btn = QPushButton("Close")
         self.close_btn.clicked.connect(self.side_panel.hide)
 
@@ -94,6 +102,7 @@ class TaskApp(QWidget):
         panel_layout.addWidget(self.days_input)
         panel_layout.addSpacing(10)
         panel_layout.addWidget(self.submit_btn)
+        panel_layout.addWidget(self.delete_btn)
         panel_layout.addWidget(self.close_btn)
 
         self.side_panel.setLayout(panel_layout)
@@ -109,13 +118,12 @@ class TaskApp(QWidget):
         main_layout.addWidget(self.side_panel)
         self.setLayout(main_layout)
 
-
         # ================= STYLE =================
         self.setStyleSheet("""
             QWidget {
                 background-color: #121212;
                 color: white;
-                font-size: 16px;
+                font-size: 18px;
             }
 
             QTableWidget {
@@ -173,9 +181,8 @@ class TaskApp(QWidget):
         self.name_input.clear()
         self.hours_input.setValue(1)
         self.days_input.setValue(1)
-
-        self.submit_btn.setText("Submit")  # optional UX fix
-
+        self.submit_btn.setText("Submit")
+        self.delete_btn.hide()
         self.side_panel.show()
 
     def add_task_from_panel(self):
@@ -190,6 +197,9 @@ class TaskApp(QWidget):
             self.editing_task.name = name
             self.editing_task.total_hours = hours
             self.editing_task.total_days = days
+
+            if self.editing_task.days_completed >= self.editing_task.total_days:
+                self.completed_task(self.editing_task)
 
             self.editing_task = None
 
@@ -222,10 +232,22 @@ class TaskApp(QWidget):
             self.table.setItem(row, 2, QTableWidgetItem(str(task.days_remaining)))
             self.table.setItem(row, 3, QTableWidgetItem(str(task.days_completed)))
 
-            btn = QPushButton("Complete Day")
+            btn = QPushButton("Completed")
             if task.last_completed_date == today:
-                btn.setText("Done Today")
+                btn.setText("Done")
                 btn.setEnabled(False)
+
+                # GREEN (done)
+                btn.setStyleSheet("""
+                        color: #4caf50;
+                        font-weight: bold;
+                    """)
+            else:
+                # RED (not done yet)
+                btn.setStyleSheet("""
+                        color: #f44336;
+                        font-weight: bold;
+                    """)
             btn.clicked.connect(lambda _, t=task: self.complete_day(t))
             self.table.setCellWidget(row, 4, btn)
 
@@ -244,7 +266,6 @@ class TaskApp(QWidget):
         self.table.setMaximumHeight(min(total_height, max_height))
 
     def complete_day(self, task):
-        from datetime import date
         today = date.today().isoformat()
 
         if task.last_completed_date == today:
@@ -255,7 +276,7 @@ class TaskApp(QWidget):
             task.last_completed_date = today
 
             if task.days_completed >= task.total_days:
-                self.tasks.remove(task)
+                self.completed_task(task)
 
             self.refresh_table()
             self.save_tasks()
@@ -300,12 +321,49 @@ class TaskApp(QWidget):
         self.name_input.setText(task.name)
         self.hours_input.setValue(task.total_hours)
         self.days_input.setValue(task.total_days)
-
+        self.delete_btn.show()
         self.side_panel.show()
+
+    def completed_task(self, task):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Task Completed 🎉")
+        dialog.setFixedSize(300, 150)
+        layout = QVBoxLayout()
+
+        label = QLabel(f"🎉 Great job!\n\nYou completed:\n{task.name}")
+        label.setAlignment(Qt.AlignCenter)
+
+        layout.addWidget(label)
+
+        dialog.setLayout(layout)
+        dialog.setStyleSheet("""
+            QDialog {
+                background-color: #121212;
+                color: white;
+            }
+        """)
+
+        QTimer.singleShot(5000, dialog.accept)
+        dialog.exec_()
+
+        self.tasks.remove(task)
+        self.refresh_table()
+        self.save_tasks()
+
+    def delete_task(self):
+        if self.editing_task:
+            self.tasks.remove(self.editing_task)
+            self.editing_task = None
+
+            self.refresh_table()
+            self.save_tasks()
+
+            self.side_panel.hide()
 
     def closeEvent(self, event):
         self.save_tasks()
         event.accept()
+
 
 # ================= RUN =================
 
