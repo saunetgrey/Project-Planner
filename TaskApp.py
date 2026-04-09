@@ -1,28 +1,33 @@
 import json
 import os
 from datetime import date
+
 from PyQt5.QtCore import QTimer
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton
 from PyQt5.QtWidgets import (
     QWidget,
     QHBoxLayout, QLineEdit, QSpinBox,
     QTableWidget, QTableWidgetItem
 )
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton
+
 from Task import Task
+
 
 class TaskApp(QWidget):
     def __init__(self):
         super().__init__()
         self.close_btn = None
         self.submit_btn = None
+        self.add_btn = None
         self.delete_btn = None
+
         self.hours_input = None
+        self.days_input = None
         self.name_input = None
+
         self.side_panel = None
         self.table = None
-        self.add_btn = None
-        self.days_input = None
         self.setWindowTitle("Task Planner")
 
         self.tasks = []
@@ -63,16 +68,15 @@ class TaskApp(QWidget):
         # ================= SIDE PANEL =================
         self.side_panel = QWidget()
         self.side_panel.setObjectName("sidePanel")
-        self.side_panel.setFixedWidth(300)
+        self.side_panel.setFixedWidth(400)
 
         panel_layout = QVBoxLayout()
 
         self.name_input = QLineEdit()
         self.hours_input = QSpinBox()
-        self.hours_input.setRange(1, 1000)
+        self.hours_input.setRange(1, 10)
 
-        self.days_input = QSpinBox()
-        self.days_input.setRange(1, 365)
+        self.days_input = QLineEdit()
 
         self.submit_btn = QPushButton("Submit")
         self.submit_btn.clicked.connect(self.add_task_from_panel)
@@ -108,69 +112,13 @@ class TaskApp(QWidget):
         main_layout.addWidget(self.side_panel)
         self.setLayout(main_layout)
 
-        # ================= STYLE =================
-        self.setStyleSheet("""
-            QWidget {
-                background-color: #121212;
-                color: white;
-                font-size: 18px;
-            }
-
-            QTableWidget {
-                background-color: #2b2b2b;
-                color: white;
-                gridline-color: #444;
-            }
-
-            QHeaderView::section {
-                background-color: #1f1f1f;
-                color: white;
-                font-weight: bold;
-                padding: 6px;
-                border: 1px solid #444;
-            }
-
-            QTableWidget QPushButton {
-                background-color: transparent;
-                border: none;
-                color: white;
-                padding: 0px;
-            }
-
-            /* NORMAL BUTTONS (side panel, add button) */
-            QPushButton {
-                background-color: #3a3a3a;
-                color: white;
-                border: none;
-                padding: 6px;
-                border-radius: 4px;
-            }
-
-            QPushButton:hover {
-                background-color: #505050;
-            }
-
-            QLineEdit, QSpinBox {
-                background-color: #2b2b2b;
-                color: white;
-                border: 1px solid #555;
-                padding: 4px;
-            }
-
-            QWidget#sidePanel {
-                background-color: #1a1a1a;
-                border-left: 2px solid #444;
-                padding: 10px;
-            }
-        """)
-
     # ================= LOGIC =================
 
     def open_add_panel(self):
         self.editing_task = None
         self.name_input.clear()
         self.hours_input.setValue(1)
-        self.days_input.setValue(1)
+        self.days_input.setText("1")
         self.submit_btn.setText("Submit")
         self.delete_btn.hide()
         self.side_panel.show()
@@ -178,7 +126,7 @@ class TaskApp(QWidget):
     def add_task_from_panel(self):
         name = self.name_input.text()
         hours = self.hours_input.value()
-        days = self.days_input.value()
+        days = int(self.days_input.text())
 
         if not name:
             return
@@ -203,7 +151,7 @@ class TaskApp(QWidget):
         # Reset inputs
         self.name_input.clear()
         self.hours_input.setValue(1)
-        self.days_input.setValue(1)
+        self.days_input.setText("1")
 
         self.side_panel.hide()
 
@@ -310,7 +258,7 @@ class TaskApp(QWidget):
 
         self.name_input.setText(task.name)
         self.hours_input.setValue(task.total_hours)
-        self.days_input.setValue(task.total_days)
+        self.days_input.setText(task.total_days)
         self.delete_btn.show()
         self.side_panel.show()
 

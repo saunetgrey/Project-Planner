@@ -8,7 +8,7 @@ class Task:
 
     @property
     def days_remaining(self):
-        return self.total_days - self.days_completed
+        return max(0, self.total_days - self.days_completed)
 
     @property
     def hours_per_day(self):
