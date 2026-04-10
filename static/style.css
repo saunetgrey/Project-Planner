@@ -1,0 +1,65 @@
+section {
+padding: 70px 30px;
+}
+
+container {
+
+}
+
+h1 {
+    font-size: 40px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    text-align: center;
+}
+
+button {
+    padding: 6px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.done {
+    color: #4caf50;
+}
+
+.pending {
+    color: #f44336;
+}
+
+form {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.input1 {
+    width: 250px;
+    height: 40px;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.form-container select {
+    height: 35px;
+    color: black;
+    border: 1px solid #444;
+    padding: 5px;
+}
+
+.not-completed {
+    color: red;
+}
+
+.completed {
+    color: green;
+}

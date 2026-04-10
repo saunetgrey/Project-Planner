@@ -1,1 +1,10 @@
-[]
+[
+    {
+        "name": "Record of Ragnarok",
+        "number_of_episodes": 18,
+        "minutes_per_episode": 23,
+        "hours_per_day": 1,
+        "days_completed": 1,
+        "last_completed_date": "2026-04-10"
+    }
+]

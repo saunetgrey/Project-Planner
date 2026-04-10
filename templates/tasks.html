@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tasks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<h1>Task Planner</h1>
+
+    <!-- TABLE -->
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Hours/Day</th>
+            <th>Days Left</th>
+            <th>Completed</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.name }}</td>
+            <td>{{ "%.2f"|format(task.hours_per_day) }}</td>
+            <td>{{ task.days_remaining }}</td>
+            <td>{{ task.days_completed }}</td>
+
+            <td>
+                <a href="/complete_task/{{ loop.index0 }}">
+                    <button class="pending">Done</button>
+                </a>
+
+                <a href="/delete_task/{{ loop.index0 }}">
+                    <button>Delete</button>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- SIDE PANEL -->
+    <div class="panel">
+        <h3>Add Task</h3>
+
+        <form method="POST" action="/add_task">
+            <input type="text" name="name" placeholder="Task Name" required><br><br>
+
+            <input type="number" name="hours" min="1" value="1"><br><br>
+
+            <input type="number" name="days" min="1" value="1"><br><br>
+
+            <button type="submit">Add</button>
+        </form>
+
+        <br>
+        <a href="/shows">Go to Shows →</a>
+    </div>
+
+</div>
+
+</body>
+</html>
