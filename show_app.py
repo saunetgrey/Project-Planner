@@ -8,8 +8,8 @@ class ShowApp:
         self.shows = []
         self.load_shows()
 
-    def add_show(self, name, episodes, minutes, hours):
-        self.shows.append(Show(name, episodes, hours, minutes))
+    def add_show(self, name, episodes, minutes, episodes_per_day):
+        self.shows.append(Show(name, episodes, episodes_per_day, minutes))
         self.save_shows()
 
     def complete_show(self, index):
@@ -36,7 +36,7 @@ class ShowApp:
                 "name": s.name,
                 "number_of_episodes": s.number_of_episodes,
                 "minutes_per_episode": s.minutes_per_episode,
-                "hours_per_day": s.hours_per_day,
+                "episodes_per_day": s.episodes_per_day,
                 "days_completed": s.days_completed,
                 "last_completed_date": s.last_completed_date
             })
@@ -55,7 +55,7 @@ class ShowApp:
             s = Show(
                 item["name"],
                 item["number_of_episodes"],
-                item["hours_per_day"],
+                item["episodes_per_day"],
                 item["minutes_per_episode"]
             )
             s.days_completed = item["days_completed"]

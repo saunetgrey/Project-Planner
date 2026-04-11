@@ -4,92 +4,94 @@
     <title>Shows</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<section>
+    <h1>Show Planner</h1>
 
-<body>
+    <form method="GET" action="/shows" class="form-container">
 
-<h1>Show Planner</h1>
+        <select name="sort_by">
+            <option value="episodes">Episodes</option>
+            <option value="minutes">Minutes/Episode</option>
+            <option value="ep/day">Episodes/Day</option>
+            <option value="days">Days Left</option>
+        </select>
 
-<form method="GET" action="/shows" class="form-container">
+        <select name="order">
+            <option value="asc">Lowest First</option>
+            <option value="desc">Highest First</option>
+        </select>
 
-    <select name="sort_by">
-        <option value="episodes">Episodes</option>
-        <option value="minutes">Minutes/Episode</option>
-        <option value="hours">Hours/Day</option>
-        <option value="days">Days Left</option>
-    </select>
+        <button type="submit">Sort</button>
 
-    <select name="order">
-        <option value="asc">Lowest First</option>
-        <option value="desc">Highest First</option>
-    </select>
+    </form>
 
-    <button type="submit">Sort</button>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Number of Episodes</th>
+            <th>Minutes per Episode</th>
+            <th>Episodes per Day</th>
+            <th>Days Left</th>
+            <th>Days Completed</th>
+            <th>Checkpoint</th>
+        </tr>
 
-</form>
+        {% for show in shows %}
+        <tr>
+            <td>{{ show.name }}</td>
+            <td>{{ show.number_of_episodes }}</td>
+            <td>{{ show.minutes_per_episode }}</td>
+            <td>{{ show.episodes_per_day }}</td>
+            <td>{{ show.days_remaining }}</td>
+            <td>{{ show.days_completed }}</td>
+            <td>
+                <form class = "button" action="{{ url_for('complete_show', index=loop.index0) }}">
+                    <button class="{{ 'btn-success' if show.last_completed_date == today else 'btn-danger' }}">
+                        Completed
+                    </button>
+                </form>
+            </td>
+            <td><a href="/delete_show/{{ loop.index0 }}">Delete Show</a></td>
+            <td>
+                <a href="{{ url_for('edit_show',
+                    index=loop.index0,
+                    sort_by=sort_by,
+                    order=order) }}">
+                    Edit
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Number of Episodes</th>
-        <th>Minutes per Episode</th>
-        <th>Hours per Day</th>
-        <th>Days Left</th>
-        <th>Days Completed</th>
-        <th>Checkpoint</th>
-    </tr>
+    <br><br>
 
-    {% for show in shows %}
-    <tr>
-        <td>{{ show.name }}</td>
-        <td>{{ show.number_of_episodes }}</td>
-        <td>{{ show.minutes_per_episode }}</td>
-        <td>{{ show.hours_per_day }}</td>
-        <td>{{ show.days_remaining }}</td>
-        <td>{{ show.days_completed }}</td>
-        <td>
-            <a class="{{ 'completed' if show.completed else 'not-completed' }}"
-               href="/complete_show/{{ loop.index0 }}">
-                Completed
-            </a>
-        </td>
-        <td><a href="/delete_show/{{ loop.index0 }}">Delete Show</a></td>
-        <td>
-            <a href="/edit_show/{{ loop.index0 }}">
-                <button>Edit</button>
-            </a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+    <form method="POST" action="/add_show" class="form-container">
 
-<br><br>
+        <input name="name" placeholder="Name" class="input1"
+               value="{{ edit_show.name if edit_show else '' }}" required>
 
-<form method="POST" action="/add_show" class="form-container">
+        <input name="episodes" placeholder="Number of Episodes" type="number" class="input1"
+               value="{{ edit_show.number_of_episodes if edit_show else '' }}">
 
-    <input name="name" placeholder="Name" class="input1"
-           value="{{ edit_show.name if edit_show else '' }}" required>
+        <input name="minutes" placeholder="Duration (mins)" type="number" class="input1"
+               value="{{ edit_show.minutes_per_episode if edit_show else '' }}">
 
-    <input name="episodes" placeholder="Number of Episodes" type="number" class="input1"
-           value="{{ edit_show.number_of_episodes if edit_show else '' }}">
+        <input name="episodes_per_day" placeholder="Episodes per day" type="number" class="input1"
+               value="{{ edit_show.episodes_per_day if edit_show else '' }}">
 
-    <input name="minutes" placeholder="Duration (mins)" type="number" class="input1"
-           value="{{ edit_show.minutes_per_episode if edit_show else '' }}">
+        <!-- hidden field -->
+        <input type="hidden" name="edit_index" class="input1"
+               value="{{ edit_index if edit_index is not none else '' }}">
 
-    <input name="hours" placeholder="How long per day (hours)" type="number" class="input1"
-           value="{{ edit_show.hours_per_day if edit_show else '' }}">
+        <button type="submit">
+            {{ "Update Show" if edit_show else "Add Show" }}
+        </button>
 
-    <!-- hidden field -->
-    <input type="hidden" name="edit_index" class="input1"
-           value="{{ edit_index if edit_index is not none else '' }}">
+    </form>
 
-    <button type="submit">
-        {{ "Update Show" if edit_show else "Add Show" }}
-    </button>
+    <br>
+    <a href="/tasks">← Back to Tasks</a>
 
-</form>
-
-<br>
-<a href="/tasks">← Back to Tasks</a>
-
-</body>
+</section>
 </html>

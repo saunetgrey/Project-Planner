@@ -1,9 +1,9 @@
 section {
-padding: 70px 30px;
+padding: 20px 30px;
 }
 
 container {
-
+padding: 10px 40px
 }
 
 h1 {
@@ -37,16 +37,16 @@ button {
     color: #f44336;
 }
 
-form {
-    text-align: center;
-    margin-top: 20px;
-}
-
 .input1 {
     width: 250px;
     height: 40px;
     font-size: 15px;
     margin-bottom: 10px;
+}
+
+.form-container {
+    text-align: center;
+    margin-top: 20px;
 }
 
 .form-container select {
@@ -56,10 +56,22 @@ form {
     padding: 5px;
 }
 
-.not-completed {
-    color: red;
+a {
+    text-decoration: none;
 }
 
-.completed {
-    color: green;
+a:visited {
+    color: inherit;
+}
+
+.btn-danger {
+    background-color: red;
+    color: white !important;
+    padding: 5px 10px;
+}
+
+.btn-success {
+    background-color: green;
+    color: white !important;
+    padding: 5px 10px;
 }
