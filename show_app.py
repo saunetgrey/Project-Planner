@@ -20,7 +20,11 @@ class ShowApp:
             show.days_completed += 1
             show.last_completed_date = today
 
-        if show.days_completed >= show.total_days:
+            show.remaining_episodes -= show.episodes_per_day
+            if show.remaining_episodes < 0:
+                show.remaining_episodes = 0
+
+        if show.remaining_episodes == 0:
             self.shows.pop(index)
 
         self.save_shows()
@@ -34,7 +38,7 @@ class ShowApp:
         for s in self.shows:
             data.append({
                 "name": s.name,
-                "number_of_episodes": s.number_of_episodes,
+                "remaining_episodes": s.remaining_episodes,
                 "minutes_per_episode": s.minutes_per_episode,
                 "episodes_per_day": s.episodes_per_day,
                 "days_completed": s.days_completed,
@@ -54,7 +58,7 @@ class ShowApp:
         for item in data:
             s = Show(
                 item["name"],
-                item["number_of_episodes"],
+                item["remaining_episodes"],
                 item["episodes_per_day"],
                 item["minutes_per_episode"]
             )

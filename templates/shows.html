@@ -36,25 +36,25 @@
             <th>Checkpoint</th>
         </tr>
 
-        {% for show in shows %}
+        {% for index, show in shows %}
         <tr>
             <td>{{ show.name }}</td>
-            <td>{{ show.number_of_episodes }}</td>
+            <td>{{ show.remaining_episodes }}</td>
             <td>{{ show.minutes_per_episode }}</td>
             <td>{{ show.episodes_per_day }}</td>
             <td>{{ show.days_remaining }}</td>
             <td>{{ show.days_completed }}</td>
             <td>
-                <form class = "button" action="{{ url_for('complete_show', index=loop.index0) }}">
+                <form class = "button" action="{{ url_for('complete_show', index=index) }}">
                     <button class="{{ 'btn-success' if show.last_completed_date == today else 'btn-danger' }}">
                         Completed
                     </button>
                 </form>
             </td>
-            <td><a href="/delete_show/{{ loop.index0 }}">Delete Show</a></td>
+            <td><a href="/delete_show/{{ index }}">Delete Show</a></td>
             <td>
                 <a href="{{ url_for('edit_show',
-                    index=loop.index0,
+                    index=index,
                     sort_by=sort_by,
                     order=order) }}">
                     Edit

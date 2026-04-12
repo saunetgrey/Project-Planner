@@ -6,6 +6,7 @@ class Show:
         self.number_of_episodes = number_of_episodes
         self.episodes_per_day = episodes_per_day
         self.minutes_per_episode = minutes_per_episode
+        self.remaining_episodes = number_of_episodes
         self.days_completed = 0
         self.last_completed_date = None
         self.completed = False
@@ -16,4 +17,5 @@ class Show:
 
     @property
     def days_remaining(self):
-        return max(0, self.total_days - self.days_completed)
+        return math.ceil(self.remaining_episodes / self.episodes_per_day)
+

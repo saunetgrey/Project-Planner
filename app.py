@@ -44,22 +44,22 @@ def shows():
     sort_by = request.args.get("sort_by")
     order = request.args.get("order", "desc")
 
-    shows = show_app.shows.copy()
+    shows = list(enumerate(show_app.shows))
 
     if sort_by:
         reverse = True if order == "desc" else False
 
         if sort_by == "episodes":
-            shows.sort(key=lambda x: x.number_of_episodes, reverse=reverse)
+            shows.sort(key=lambda x: x[1].number_of_episodes, reverse=reverse)
 
         elif sort_by == "minutes":
-            shows.sort(key=lambda x: x.minutes_per_episode, reverse=reverse)
+            shows.sort(key=lambda x: x[1].minutes_per_episode, reverse=reverse)
 
         elif sort_by == "ep/day":
-            shows.sort(key=lambda x: x.episodes_per_day, reverse=reverse)
+            shows.sort(key=lambda x: x[1].episodes_per_day, reverse=reverse)
 
         elif sort_by == "days":
-            shows.sort(key=lambda x: x.days_remaining, reverse=reverse)
+            shows.sort(key=lambda x: x[1].days_remaining, reverse=reverse)
 
     return render_template(
         "shows.html",
