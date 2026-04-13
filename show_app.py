@@ -2,6 +2,7 @@ import json
 import os
 from Show import Show
 from datetime import date
+from db import get_connection
 
 class ShowApp:
     def __init__(self):
@@ -9,29 +10,67 @@ class ShowApp:
         self.load_shows()
 
     def add_show(self, name, episodes, minutes, episodes_per_day):
-        self.shows.append(Show(name, episodes, episodes_per_day, minutes))
-        self.save_shows()
+        conn = get_connection()
+        cur = conn.cursor()
 
-    def complete_show(self, index):
-        show = self.shows[index]
-        today = date.today().isoformat()
+        cur.execute("""
+            INSERT INTO shows (name, remaining_episodes, minutes_per_episode, episodes_per_day)
+            VALUES (%s, %s, %s, %s)
+        """, (name, episodes, minutes, episodes_per_day))
 
-        if show.last_completed_date != today:
-            show.days_completed += 1
-            show.last_completed_date = today
+        conn.commit()
+        cur.close()
+        conn.close()
 
-            show.remaining_episodes -= show.episodes_per_day
-            if show.remaining_episodes < 0:
-                show.remaining_episodes = 0
+    def complete_show(self, show_id):
+        conn = get_connection()
+        cur = conn.cursor()
 
-        if show.remaining_episodes == 0:
-            self.shows.pop(index)
+        cur.execute("SELECT * FROM shows WHERE id=%s", (show_id,))
+        row = cur.fetchone()
 
-        self.save_shows()
+        if not row:
+            return
 
-    def delete_show(self, index):
-        self.shows.pop(index)
-        self.save_shows()
+        remaining_episodes = row[2]
+        episodes_per_day = row[4]
+        days_completed = row[5]
+        last_completed_date = row[6]
+
+        today = date.today()
+
+        if last_completed_date != today:
+            days_completed += 1
+            last_completed_date = today
+            remaining_episodes -= episodes_per_day
+
+            if remaining_episodes < 0:
+                remaining_episodes = 0
+
+        cur.execute("""
+            UPDATE shows
+            SET remaining_episodes=%s,
+                days_completed=%s,
+                last_completed_date=%s
+            WHERE id=%s
+        """, (remaining_episodes, days_completed, last_completed_date, show_id))
+
+        if remaining_episodes == 0:
+            cur.execute("DELETE FROM shows WHERE id=%s", (show_id,))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+    def delete_show(self, show_id):
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("DELETE FROM shows WHERE id=%s", (show_id,))
+
+        conn.commit()
+        cur.close()
+        conn.close()
 
     def save_shows(self):
         data = []
@@ -49,19 +88,25 @@ class ShowApp:
             json.dump(data, f, indent=4)
 
     def load_shows(self):
-        if not os.path.exists("shows.json"):
-            return
+        conn = get_connection()
+        cur = conn.cursor()
 
-        with open("shows.json", "r") as f:
-            data = json.load(f)
+        cur.execute("SELECT * FROM shows")
+        rows = cur.fetchall()
 
-        for item in data:
+        self.shows = []
+
+        for row in rows:
             s = Show(
-                item["name"],
-                item["remaining_episodes"],
-                item["episodes_per_day"],
-                item["minutes_per_episode"]
+                row[1],  # name
+                row[2],  # remaining_episodes
+                row[4],  # episodes_per_day
+                row[3]  # minutes_per_episode
             )
-            s.days_completed = item["days_completed"]
-            s.last_completed_date = item.get("last_completed_date")
+            s.id = row[0]
+            s.days_completed = row[5]
+            s.last_completed_date = row[6]
             self.shows.append(s)
+
+        cur.close()
+        conn.close()

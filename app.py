@@ -44,22 +44,22 @@ def shows():
     sort_by = request.args.get("sort_by")
     order = request.args.get("order", "desc")
 
-    shows = list(enumerate(show_app.shows))
+    shows = show_app.shows
 
     if sort_by:
         reverse = True if order == "desc" else False
 
         if sort_by == "episodes":
-            shows.sort(key=lambda x: x[1].number_of_episodes, reverse=reverse)
+            shows.sort(key=lambda x: x.number_of_episodes, reverse=reverse)
 
         elif sort_by == "minutes":
-            shows.sort(key=lambda x: x[1].minutes_per_episode, reverse=reverse)
+            shows.sort(key=lambda x: x.minutes_per_episode, reverse=reverse)
 
         elif sort_by == "ep/day":
-            shows.sort(key=lambda x: x[1].episodes_per_day, reverse=reverse)
+            shows.sort(key=lambda x: x.episodes_per_day, reverse=reverse)
 
         elif sort_by == "days":
-            shows.sort(key=lambda x: x[1].days_remaining, reverse=reverse)
+            shows.sort(key=lambda x: x.days_remaining, reverse=reverse)
 
     return render_template(
         "shows.html",
@@ -77,7 +77,7 @@ def add_show():
     minutes = int(request.form["minutes"])
     episodes_per_day = int(request.form["episodes_per_day"])
 
-    edit_index = request.form.get("edit_index")
+    edit_index = request.form.get("edit_id")
 
     if edit_index is not None and edit_index != "":
         show = show_app.shows[int(edit_index)]
@@ -92,20 +92,20 @@ def add_show():
     return redirect(url_for("shows"))
 
 
-@app.route('/complete_show/<int:index>')
-def complete_show(index):
-    show_app.complete_show(index)
+@app.route('/complete_show/<int:show_id>')
+def complete_show(show_id):
+    show_app.complete_show(show_id)
     return redirect(url_for("shows"))
 
 
-@app.route("/delete_show/<int:index>")
-def delete_show(index):
-    show_app.delete_show(index)
+@app.route("/delete_show/<int:show_id>")
+def delete_show(show_id):
+    show_app.delete_show(show_id)
     return redirect(url_for("shows"))
 
-@app.route("/edit_show/<int:index>")
-def edit_show(index):
-    show = show_app.shows[index]
+@app.route("/edit_show/<int:show_id>")
+def edit_show(show_id):
+    show = next((s for s in show_app.shows if s.id == show_id), None)
 
     sort_by = request.args.get("sort_by")
     order = request.args.get("order", "desc")

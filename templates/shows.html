@@ -36,7 +36,7 @@
             <th>Checkpoint</th>
         </tr>
 
-        {% for index, show in shows %}
+        {% for show in shows %}
         <tr>
             <td>{{ show.name }}</td>
             <td>{{ show.remaining_episodes }}</td>
@@ -45,19 +45,18 @@
             <td>{{ show.days_remaining }}</td>
             <td>{{ show.days_completed }}</td>
             <td>
-                <form class = "button" action="{{ url_for('complete_show', index=index) }}">
+                <form class="button" action="{{ url_for('complete_show', show_id=show.id) }}">
                     <button class="{{ 'btn-success' if show.last_completed_date == today else 'btn-danger' }}">
                         Completed
                     </button>
                 </form>
             </td>
-            <td><a href="/delete_show/{{ index }}">Delete Show</a></td>
+            <td><a href="{{ url_for('delete_show', show_id=show.id) }}">Delete Show</a></td>
             <td>
                 <a href="{{ url_for('edit_show',
-                    index=index,
-                    sort_by=sort_by,
-                    order=order) }}">
-                    Edit
+                            show_id=show.id,
+                            sort_by=sort_by,
+                            order=order) }}"> Edit
                 </a>
             </td>
         </tr>
@@ -81,8 +80,7 @@
                value="{{ edit_show.episodes_per_day if edit_show else '' }}">
 
         <!-- hidden field -->
-        <input type="hidden" name="edit_index" class="input1"
-               value="{{ edit_index if edit_index is not none else '' }}">
+        <input type="hidden" name="edit_id" value="{{ edit_show.id if edit_show else '' }}">
 
         <button type="submit">
             {{ "Update Show" if edit_show else "Add Show" }}
