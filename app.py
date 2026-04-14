@@ -31,7 +31,13 @@ def shows():
         elif sort_by == "days":
             shows.sort(key=lambda x: x.days_remaining, reverse=reverse)
 
-    total_minutes = sum(show.total_time_spent for show in shows)
+    today = date.today()
+
+    total_minutes = sum(
+        show.total_time_spent
+        for show in shows
+        if show.last_completed_date != today
+    )
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
 
@@ -81,7 +87,13 @@ def edit_show(show_id):
 
     show = next((s for s in show_app.shows if s.id == show_id), None)
 
-    total_minutes = sum(show.total_time_spent for show in show_app.shows)
+    today = date.today()
+
+    total_minutes = sum(
+        show.total_time_spent
+        for show in show_app.shows
+        if show.last_completed_date != today
+    )
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
 
