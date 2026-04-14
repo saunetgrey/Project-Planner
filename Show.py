@@ -20,3 +20,6 @@ class Show:
     def days_remaining(self):
         return math.ceil(self.remaining_episodes / self.episodes_per_day)
 
+    @property
+    def total_time_spent(self):
+        return self.minutes_per_episode * self.episodes_per_day

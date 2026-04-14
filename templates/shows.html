@@ -10,10 +10,10 @@
     <form method="GET" action="/shows" class="form-container">
 
         <select name="sort_by">
-            <option value="episodes">Episodes</option>
-            <option value="minutes">Minutes/Episode</option>
-            <option value="ep/day">Episodes/Day</option>
-            <option value="days">Days Left</option>
+            <option value="episodes">Number of Episodes</option>
+            <option value="minutes">Minutes Per Episode</option>
+            <option value="ep/day">Episodes Per Day</option>
+            <option value="days">Days Remaining</option>
         </select>
 
         <select name="order">
@@ -31,6 +31,7 @@
             <th>Number of Episodes</th>
             <th>Minutes per Episode</th>
             <th>Episodes per Day</th>
+            <th>Total Time Needed to Spend</th>
             <th>Days Left</th>
             <th>Days Completed</th>
             <th>Checkpoint</th>
@@ -40,8 +41,9 @@
         <tr>
             <td>{{ show.name }}</td>
             <td>{{ show.remaining_episodes }}</td>
-            <td>{{ show.minutes_per_episode }}</td>
+            <td>{{ show.minutes_per_episode }} mins</td>
             <td>{{ show.episodes_per_day }}</td>
+            <td>{{ show.total_time_spent }} mins</td>
             <td>{{ show.days_remaining }}</td>
             <td>{{ show.days_completed }}</td>
             <td>
