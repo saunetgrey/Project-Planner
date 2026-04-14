@@ -80,7 +80,7 @@ def edit_show(show_id):
     show_app.load_shows()
 
     show = next((s for s in show_app.shows if s.id == show_id), None)
-    total_minutes = sum(show.total_time_spent for show in shows)
+    total_minutes = sum(show.total_time_spent for show in shows.apps)
 
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
