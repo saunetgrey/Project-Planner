@@ -32,7 +32,6 @@ def shows():
             shows.sort(key=lambda x: x.days_remaining, reverse=reverse)
 
     total_minutes = sum(show.total_time_spent for show in shows)
-
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
 
@@ -81,14 +80,17 @@ def edit_show(show_id):
     show_app.load_shows()
 
     show = next((s for s in show_app.shows if s.id == show_id), None)
-    total_minutes = sum(show.total_time_spent for show in show_app.shows)
+    total_minutes = sum(show.total_time_spent for show in shows)
 
     total_hours = total_minutes // 60
+    remaining_minutes = total_minutes % 60
+
     return render_template(
         "shows.html",
         shows=show_app.shows,
         edit_show=show,
         total_hours=total_hours,
+        remaining_minutes=remaining_minutes,
         today=date.today()
     )
 
