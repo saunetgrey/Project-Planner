@@ -40,6 +40,7 @@ def shows():
     )
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
+    total_rows = len(shows)
 
     return render_template(
         "shows.html",
@@ -48,6 +49,7 @@ def shows():
         sort_by=sort_by,
         order=order,
         total_hours=total_hours,
+        total_rows=total_rows,
         remaining_minutes=remaining_minutes
     )
 
@@ -96,12 +98,14 @@ def edit_show(show_id):
     )
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
+    total_rows = len(shows)
 
     return render_template(
         "shows.html",
         shows=show_app.shows,
         edit_show=show,
         total_hours=total_hours,
+        total_rows=total_rows,
         remaining_minutes=remaining_minutes,
         today=date.today()
     )
