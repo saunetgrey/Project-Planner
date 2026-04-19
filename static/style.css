@@ -1,49 +1,101 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+}
+
+/* Layout */
 section {
-padding: 20px 30px;
+    padding: 20px 30px;
+    max-width: 1100px;
+    margin: auto;
 }
 
-container {
-padding: 10px 40px
+/* FIX: container should be .container (class, not tag) */
+.container {
+    padding: 10px 40px;
 }
 
+/* Title */
 h1 {
-    font-size: 60px;
+    font-size: 48px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
+/* Table */
 table {
     width: 100%;
     border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
 }
 
-th, td {
+/* Header */
+th {
+    background-color: #2c3e50;
+    color: white;
+    font-size: 14px;
+    text-transform: uppercase;
     padding: 12px;
-    border-bottom: 1px solid #333;
+}
+
+/* Cells */
+td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
     text-align: center;
 }
 
+/* Row hover */
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Align names left */
+td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+
+/* Buttons */
 button {
-    padding: 6px 10px;
+    padding: 6px 12px;
     border: none;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s ease;
 }
 
-.done {
-    color: #4caf50;
+/* Softer colors */
+.btn-danger {
+    background-color: #e74c3c;
+    color: white !important;
 }
 
-.pending {
-    color: #f44336;
+.btn-success {
+    background-color: #27ae60;
+    color: white !important;
 }
 
+button:hover {
+    opacity: 0.85;
+}
+
+/* Inputs */
 .input1 {
     width: 250px;
     height: 40px;
     font-size: 15px;
-    margin-bottom: 10px;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
+/* Form */
 .form-container {
     text-align: center;
     margin-top: 20px;
@@ -51,43 +103,50 @@ button {
 
 .form-container select {
     height: 35px;
-    color: black;
-    border: 1px solid #444;
+    border-radius: 6px;
+    border: 1px solid #ccc;
     padding: 5px;
 }
 
+/* Links */
 a {
     text-decoration: none;
+    font-weight: bold;
+    margin: 0 5px;
 }
 
-a:visited {
-    color: inherit;
+a:hover {
+    text-decoration: underline;
 }
 
-.btn-danger {
-    background-color: red;
-    color: white !important;
-    padding: 5px 10px;
+a[href*="delete"] {
+    color: #e74c3c;
 }
 
-.btn-success {
-    background-color: green;
-    color: white !important;
-    padding: 5px 10px;
+a[href*="edit"] {
+    color: #3498db;
 }
 
+/* Total time box */
 .total-time {
     margin-top: 30px;
     padding: 15px;
     border-radius: 10px;
-    background-color: #f5f5f5;
+    background-color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 40px;
     font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .total-time h2 {
-    margin-bottom: 5px;
+    margin: 0;
+    font-size: 18px;
+}
+
+.total-time p {
+    margin: 0;
+    font-size: 20px;
 }
