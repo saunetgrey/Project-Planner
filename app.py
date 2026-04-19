@@ -40,7 +40,7 @@ def shows():
     )
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
-    total_rows = len(shows)
+    total_rows = len(show_app.shows)
 
     return render_template(
         "shows.html",
@@ -87,6 +87,9 @@ def delete_show(show_id):
 def edit_show(show_id):
     show_app.load_shows()
 
+    sort_by = request.args.get("sort_by")
+    order = request.args.get("order", "desc")
+
     show = next((s for s in show_app.shows if s.id == show_id), None)
 
     today = date.today()
@@ -96,18 +99,21 @@ def edit_show(show_id):
         for show in show_app.shows
         if show.last_completed_date != today
     )
+
     total_hours = total_minutes // 60
     remaining_minutes = total_minutes % 60
-    total_rows = len(shows)
+    total_rows = len(show_app.shows)
 
     return render_template(
         "shows.html",
         shows=show_app.shows,
         edit_show=show,
+        sort_by=sort_by,
+        order=order,
         total_hours=total_hours,
         total_rows=total_rows,
         remaining_minutes=remaining_minutes,
-        today=date.today()
+        today=today
     )
 
 
