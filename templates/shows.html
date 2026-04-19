@@ -25,6 +25,32 @@
 
     </form>
 
+    <br>
+    <br>
+
+    <form method="POST" action="/add_show" class="form-container">
+
+        <input name="name" placeholder="Name" class="input1"
+               value="{{ edit_show.name if edit_show else '' }}" required>
+
+        <input name="episodes" placeholder="Number of Episodes" type="number" class="input1"
+               value="{{ edit_show.number_of_episodes if edit_show else '' }}">
+
+        <input name="minutes" placeholder="Duration (mins)" type="number" class="input1"
+               value="{{ edit_show.minutes_per_episode if edit_show else '' }}">
+
+        <input name="episodes_per_day" placeholder="Episodes per day" type="number" class="input1"
+               value="{{ edit_show.episodes_per_day if edit_show else '' }}">
+
+        <!-- hidden field -->
+        <input type="hidden" name="edit_id" value="{{ edit_show.id if edit_show else '' }}">
+
+        <button type="submit">
+            {{ "Update Show" if edit_show else "Add Show" }}
+        </button>
+
+    </form>
+
     <table>
         <tr>
             <th>Name</th>
@@ -66,29 +92,6 @@
     </table>
 
     <br><br>
-
-    <form method="POST" action="/add_show" class="form-container">
-
-        <input name="name" placeholder="Name" class="input1"
-               value="{{ edit_show.name if edit_show else '' }}" required>
-
-        <input name="episodes" placeholder="Number of Episodes" type="number" class="input1"
-               value="{{ edit_show.number_of_episodes if edit_show else '' }}">
-
-        <input name="minutes" placeholder="Duration (mins)" type="number" class="input1"
-               value="{{ edit_show.minutes_per_episode if edit_show else '' }}">
-
-        <input name="episodes_per_day" placeholder="Episodes per day" type="number" class="input1"
-               value="{{ edit_show.episodes_per_day if edit_show else '' }}">
-
-        <!-- hidden field -->
-        <input type="hidden" name="edit_id" value="{{ edit_show.id if edit_show else '' }}">
-
-        <button type="submit">
-            {{ "Update Show" if edit_show else "Add Show" }}
-        </button>
-
-    </form>
 
     <div class="total-time">
         <h2>Total Daily Watch Time</h2>
