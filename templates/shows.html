@@ -10,10 +10,10 @@
     <form method="GET" action="/shows" class="form-container">
 
         <select name="sort_by">
+            <option value="days">Remaining Days</option>
             <option value="episodes">Number of Episodes</option>
             <option value="minutes">Minutes Per Episode</option>
             <option value="ep/day">Episodes Per Day</option>
-            <option value="days">Days Remaining</option>
         </select>
 
         <select name="order">
@@ -93,7 +93,7 @@
     <div class="total-time">
         <h2>Total Daily Watch Time</h2>
         <p>{{ total_hours }}h {{ remaining_minutes }}m</p>
-        <h3>Total Shows</h3>
+        <h2>Total Shows</h2>
         <p>{{ total_rows }}</p>
     </div>
 
