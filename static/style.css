@@ -150,3 +150,8 @@ a[href*="edit"] {
     margin: 0;
     font-size: 20px;
 }
+
+td:nth-child(6) {
+    color: #27ae60; /* nice modern green */
+    font-weight: bold;
+}
