@@ -1,54 +1,9 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Show planner</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Show planner</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
 <body class="shows-page"><main class="show-shell">
-  <header class="page-header">
-    <a class="back-link" href="{{ url_for('tasks') }}">← Tasks</a>
-    <p class="eyebrow">WATCHLIST</p><h1>Your show plan</h1>
-    <p class="intro">Tap a show to mark today’s episodes watched, edit it, or remove it.</p>
-  </header>
-  <form method="GET" action="{{ url_for('shows') }}" class="sort-bar" aria-label="Sort shows">
-    <label><span>Sort by</span><select name="sort_by">
-      <option value="episodes" {{ 'selected' if sort_by == 'episodes' else '' }}>Episodes left</option>
-      <option value="minutes" {{ 'selected' if sort_by == 'minutes' else '' }}>Minutes / episode</option>
-      <option value="ep/day" {{ 'selected' if sort_by == 'ep/day' else '' }}>Episodes / day</option>
-      <option value="days" {{ 'selected' if sort_by == 'days' else '' }}>Days left</option>
-    </select></label>
-    <label><span>Order</span><select name="order">
-      <option value="asc" {{ 'selected' if order == 'asc' else '' }}>Lowest first</option>
-      <option value="desc" {{ 'selected' if order == 'desc' else '' }}>Highest first</option>
-    </select></label><button type="submit" class="button button-secondary">Apply</button>
-  </form>
-  <section class="show-list" aria-label="Shows">
-    {% for index, show in shows %}
-    <article class="show-card" tabindex="0" role="button" aria-haspopup="dialog"
-      data-name="{{ show.name }}" data-episodes="{{ show.remaining_episodes }}" data-days="{{ show.days_remaining }}" data-per-day="{{ show.episodes_per_day }}"
-      data-complete-url="{{ url_for('complete_show', index=index) }}" data-edit-url="{{ url_for('edit_show', index=index, sort_by=sort_by, order=order) }}" data-delete-url="{{ url_for('delete_show', index=index) }}">
-      <div class="show-card-topline"><h2>{{ show.name }}</h2><span class="status {{ 'is-done-today' if show.last_completed_date == today else '' }}">{{ 'Watched today' if show.last_completed_date == today else 'To watch' }}</span></div>
-      <div class="show-stats">
-        <div><strong>{{ show.remaining_episodes }}</strong><span>episodes left</span></div><div><strong>{{ show.days_remaining }}</strong><span>days left</span></div>
-        <div><strong>{{ show.episodes_per_day }}</strong><span>per day</span></div><div><strong>{{ show.minutes_per_episode }}</strong><span>min / episode</span></div>
-      </div><span class="tap-hint">Tap for actions <span aria-hidden="true">›</span></span>
-    </article>
-    {% else %}<div class="empty-state"><h2>No shows yet</h2><p>Add a show below and we’ll calculate your viewing plan.</p></div>{% endfor %}
-  </section>
-  <section class="show-form-card" aria-labelledby="show-form-title">
-    <div><p class="eyebrow">{{ 'EDITING' if edit_show else 'NEW SHOW' }}</p><h2 id="show-form-title">{{ 'Update show' if edit_show else 'Add a show' }}</h2></div>
-    <form method="POST" action="{{ url_for('add_show') }}" class="show-form">
-      <label class="field field-wide">Show name<input name="name" placeholder="e.g. The Bear" value="{{ edit_show.name if edit_show else '' }}" required></label>
-      <label class="field">Total episodes<input name="episodes" type="number" min="1" inputmode="numeric" placeholder="10" value="{{ edit_show.number_of_episodes if edit_show else '' }}" required></label>
-      <label class="field">Minutes per episode<input name="minutes" type="number" min="1" inputmode="numeric" placeholder="45" value="{{ edit_show.minutes_per_episode if edit_show else '' }}" required></label>
-      <label class="field">Episodes per day<input name="episodes_per_day" type="number" min="1" inputmode="numeric" placeholder="1" value="{{ edit_show.episodes_per_day if edit_show else '' }}" required></label>
-      <input type="hidden" name="edit_index" value="{{ edit_index if edit_index is not none else '' }}"><div class="form-actions">{% if edit_show %}<a class="button button-text" href="{{ url_for('shows', sort_by=sort_by, order=order) }}">Cancel</a>{% endif %}<button type="submit" class="button">{{ 'Save changes' if edit_show else 'Add show' }}</button></div>
-    </form>
-  </section>
-</main>
-<dialog class="show-dialog" id="show-actions" aria-labelledby="dialog-title"><div class="dialog-heading"><div><p class="eyebrow">SHOW ACTIONS</p><h2 id="dialog-title"></h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button></div><p class="dialog-summary" id="dialog-summary"></p><div class="dialog-actions"><a class="button complete-button" id="complete-action" href="#">Mark today watched</a><a class="button button-secondary" id="edit-action" href="#">Edit details</a><a class="button button-danger" id="delete-action" href="#">Delete show</a></div></dialog>
-<script>
-const dialog=document.getElementById('show-actions'),title=document.getElementById('dialog-title'),summary=document.getElementById('dialog-summary'),complete=document.getElementById('complete-action'),edit=document.getElementById('edit-action'),remove=document.getElementById('delete-action');
-function openActions(card){title.textContent=card.dataset.name;summary.textContent=`${card.dataset.episodes} episodes left · ${card.dataset.days} days to go · ${card.dataset.perDay} per day`;complete.href=card.dataset.completeUrl;edit.href=card.dataset.editUrl;remove.href=card.dataset.deleteUrl;dialog.showModal()}
-document.querySelectorAll('.show-card').forEach(card=>{card.addEventListener('click',()=>openActions(card));card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openActions(card)}})});document.querySelector('[data-close-dialog]').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});remove.addEventListener('click',event=>{if(!window.confirm(`Delete ${title.textContent}? This cannot be undone.`))event.preventDefault()});
-</script></body></html>
+  <header class="page-header"><p class="eyebrow">WATCHLIST</p><h1>Your show plan</h1><p class="intro">Tap a show to mark today’s episodes watched, edit it, or remove it.</p></header>
+  <form method="GET" action="{{ url_for('shows') }}" class="sort-bar" aria-label="Sort shows"><label><span>Sort by</span><select name="sort_by"><option value="episodes" {{ 'selected' if sort_by == 'episodes' else '' }}>Episodes left</option><option value="minutes" {{ 'selected' if sort_by == 'minutes' else '' }}>Minutes / episode</option><option value="ep/day" {{ 'selected' if sort_by == 'ep/day' else '' }}>Episodes / day</option><option value="days" {{ 'selected' if sort_by == 'days' else '' }}>Days left</option></select></label><label><span>Order</span><select name="order"><option value="asc" {{ 'selected' if order == 'asc' else '' }}>Lowest first</option><option value="desc" {{ 'selected' if order == 'desc' else '' }}>Highest first</option></select></label><button type="submit" class="button button-secondary">Apply</button></form>
+  <section class="show-list" aria-label="Shows">{% for show in shows %}<article class="show-card" tabindex="0" role="button" aria-haspopup="dialog" data-name="{{ show.name }}" data-episodes="{{ show.remaining_episodes }}" data-days="{{ show.days_remaining }}" data-per-day="{{ show.episodes_per_day }}" data-complete-url="{{ url_for('complete_show', show_id=show.id) }}" data-edit-url="{{ url_for('edit_show', show_id=show.id, sort_by=sort_by, order=order) }}" data-delete-url="{{ url_for('delete_show', show_id=show.id) }}"><div class="show-card-topline"><h2>{{ show.name }}</h2><span class="status {{ 'is-done-today' if show.last_completed_date == today else '' }}">{{ 'Watched today' if show.last_completed_date == today else 'To watch' }}</span></div><div class="show-stats"><div><strong>{{ show.remaining_episodes }}</strong><span>episodes left</span></div><div><strong>{{ show.days_remaining }}</strong><span>days left</span></div><div><strong>{{ show.episodes_per_day }}</strong><span>per day</span></div><div><strong>{{ show.minutes_per_episode }}</strong><span>min / episode</span></div></div><span class="tap-hint">Tap for actions <span aria-hidden="true">›</span></span></article>{% else %}<div class="empty-state"><h2>No shows yet</h2><p>Add a show below and we’ll calculate your viewing plan.</p></div>{% endfor %}</section>
+  <section class="total-time"><div><span>Today’s watch time</span><strong>{{ total_hours }}h {{ remaining_minutes }}m</strong></div><div><span>Shows in plan</span><strong>{{ total_rows }}</strong></div></section>
+  <section class="show-form-card" aria-labelledby="show-form-title"><div><p class="eyebrow">{{ 'EDITING' if edit_show else 'NEW SHOW' }}</p><h2 id="show-form-title">{{ 'Update show' if edit_show else 'Add a show' }}</h2></div><form method="POST" action="{{ url_for('add_show') }}" class="show-form"><label class="field field-wide">Show name<input name="name" placeholder="e.g. The Bear" value="{{ edit_show.name if edit_show else '' }}" required></label><label class="field">Total episodes<input name="episodes" type="number" min="1" inputmode="numeric" placeholder="10" value="{{ edit_show.number_of_episodes if edit_show else '' }}" required></label><label class="field">Minutes per episode<input name="minutes" type="number" min="1" inputmode="numeric" placeholder="45" value="{{ edit_show.minutes_per_episode if edit_show else '' }}" required></label><label class="field">Episodes per day<input name="episodes_per_day" type="number" min="1" inputmode="numeric" placeholder="1" value="{{ edit_show.episodes_per_day if edit_show else '' }}" required></label><input type="hidden" name="edit_id" value="{{ edit_show.id if edit_show else '' }}"><div class="form-actions">{% if edit_show %}<a class="button button-text" href="{{ url_for('shows', sort_by=sort_by, order=order) }}">Cancel</a>{% endif %}<button type="submit" class="button">{{ 'Save changes' if edit_show else 'Add show' }}</button></div></form></section>
+</main><dialog class="show-dialog" id="show-actions" aria-labelledby="dialog-title"><div class="dialog-heading"><div><p class="eyebrow">SHOW ACTIONS</p><h2 id="dialog-title"></h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button></div><p class="dialog-summary" id="dialog-summary"></p><div class="dialog-actions"><a class="button complete-button" id="complete-action" href="#">Mark today watched</a><a class="button button-secondary" id="edit-action" href="#">Edit details</a><a class="button button-danger" id="delete-action" href="#">Delete show</a></div></dialog><script>const dialog=document.getElementById('show-actions'),title=document.getElementById('dialog-title'),summary=document.getElementById('dialog-summary'),complete=document.getElementById('complete-action'),edit=document.getElementById('edit-action'),remove=document.getElementById('delete-action');function openActions(card){title.textContent=card.dataset.name;summary.textContent=`${card.dataset.episodes} episodes left · ${card.dataset.days} days to go · ${card.dataset.perDay} per day`;complete.href=card.dataset.completeUrl;edit.href=card.dataset.editUrl;remove.href=card.dataset.deleteUrl;dialog.showModal()}document.querySelectorAll('.show-card').forEach(card=>{card.addEventListener('click',()=>openActions(card));card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openActions(card)}})});document.querySelector('[data-close-dialog]').addEventListener('click',()=>dialog.close());dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});remove.addEventListener('click',event=>{if(!window.confirm(`Delete ${title.textContent}? This cannot be undone.`))event.preventDefault()});</script></body></html>

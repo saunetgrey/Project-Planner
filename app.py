@@ -1,72 +1,56 @@
 from datetime import date
 from flask import Flask, render_template, request, redirect, url_for
-from task_app import TaskApp
 from show_app import ShowApp
 
 app = Flask(__name__)
 
-task_app = TaskApp()
 show_app = ShowApp()
 
 
-# ================= TASK ROUTES =================
-@app.route("/")
-@app.route("/tasks")
-def tasks():
-    return render_template("tasks.html", tasks=task_app.tasks)
-
-
-@app.route("/add_task", methods=["POST"])
-def add_task():
-    name = request.form["name"]
-    hours = int(request.form["hours"])
-    days = int(request.form["days"])
-
-    task_app.add_task(name, hours, days)
-    return redirect(url_for("tasks"))
-
-
-@app.route("/complete_task/<int:index>")
-def complete_task(index):
-    task_app.complete_task(index)
-    return redirect(url_for("tasks"))
-
-
-@app.route("/delete_task/<int:index>")
-def delete_task(index):
-    task_app.delete_task(index)
-    return redirect(url_for("tasks"))
-
-
-# ================= SHOW ROUTES =================
 @app.route("/shows")
 def shows():
+    show_app.load_shows()
+
     sort_by = request.args.get("sort_by")
     order = request.args.get("order", "desc")
 
-    shows = list(enumerate(show_app.shows))
+    shows = show_app.shows
 
     if sort_by:
         reverse = True if order == "desc" else False
 
         if sort_by == "episodes":
-            shows.sort(key=lambda x: x[1].number_of_episodes, reverse=reverse)
+            shows.sort(key=lambda x: x.number_of_episodes, reverse=reverse)
 
         elif sort_by == "minutes":
-            shows.sort(key=lambda x: x[1].minutes_per_episode, reverse=reverse)
+            shows.sort(key=lambda x: x.minutes_per_episode, reverse=reverse)
 
         elif sort_by == "ep/day":
-            shows.sort(key=lambda x: x[1].episodes_per_day, reverse=reverse)
+            shows.sort(key=lambda x: x.episodes_per_day, reverse=reverse)
 
         elif sort_by == "days":
-            shows.sort(key=lambda x: x[1].days_remaining, reverse=reverse)
+            shows.sort(key=lambda x: x.days_remaining, reverse=reverse)
+
+    today = date.today()
+
+    total_minutes = sum(
+        show.total_time_spent
+        for show in shows
+        if show.last_completed_date != today
+    )
+    total_hours = total_minutes // 60
+    remaining_minutes = total_minutes % 60
+    total_rows = len(show_app.shows)
 
     return render_template(
         "shows.html",
         shows=shows,
-        today=date.today().isoformat(),
+        today=date.today(),
         sort_by=sort_by,
-        order=order
+        order=order,
+        total_hours=total_hours,
+        total_rows=total_rows,
+        remaining_minutes=remaining_minutes
     )
 
 
@@ -77,64 +61,63 @@ def add_show():
     minutes = int(request.form["minutes"])
     episodes_per_day = int(request.form["episodes_per_day"])
 
-    edit_index = request.form.get("edit_index")
+    edit_id = request.form.get("edit_id")
 
-    if edit_index is not None and edit_index != "":
-        show = show_app.shows[int(edit_index)]
-        show.name = name
-        show.number_of_episodes = episodes
-        show.minutes_per_episode = minutes
-        show.episodes_per_day = episodes_per_day
-        show_app.save_shows()
+    if edit_id:
+        show_app.update_show(edit_id, name, episodes, minutes, episodes_per_day)
     else:
         show_app.add_show(name, episodes, minutes, episodes_per_day)
 
     return redirect(url_for("shows"))
 
 
-@app.route('/complete_show/<int:index>')
-def complete_show(index):
-    show_app.complete_show(index)
+@app.route('/complete_show/<int:show_id>')
+def complete_show(show_id):
+    show_app.complete_show(show_id)
     return redirect(url_for("shows"))
 
 
-@app.route("/delete_show/<int:index>")
-def delete_show(index):
-    show_app.delete_show(index)
+@app.route("/delete_show/<int:show_id>")
+def delete_show(show_id):
+    show_app.delete_show(show_id)
     return redirect(url_for("shows"))
 
-@app.route("/edit_show/<int:index>")
-def edit_show(index):
-    show = show_app.shows[index]
+
+@app.route("/edit_show/<int:show_id>")
+def edit_show(show_id):
+    show_app.load_shows()
 
     sort_by = request.args.get("sort_by")
     order = request.args.get("order", "desc")
 
-    # Keep each item's original index so actions still target the right show
-    # after the display list has been sorted.
-    shows = list(enumerate(show_app.shows))
+    show = next((s for s in show_app.shows if s.id == show_id), None)
+    if show is None:
+        return redirect(url_for("shows"))
 
-    if sort_by:
-        reverse = True if order == "desc" else False
+    today = date.today()
 
-        if sort_by == "episodes":
-            shows.sort(key=lambda x: x[1].number_of_episodes, reverse=reverse)
-        elif sort_by == "minutes":
-            shows.sort(key=lambda x: x[1].minutes_per_episode, reverse=reverse)
-        elif sort_by == "ep/day":
-            shows.sort(key=lambda x: x[1].episodes_per_day, reverse=reverse)
-        elif sort_by == "days":
-            shows.sort(key=lambda x: x[1].days_remaining, reverse=reverse)
+    total_minutes = sum(
+        show.total_time_spent
+        for show in show_app.shows
+        if show.last_completed_date != today
+    )
+
+    total_hours = total_minutes // 60
+    remaining_minutes = total_minutes % 60
+    total_rows = len(show_app.shows)
 
     return render_template(
         "shows.html",
-        shows=shows,
-        today=date.today().isoformat(),
-        edit_index=index,
+        shows=show_app.shows,
         edit_show=show,
         sort_by=sort_by,
-        order=order
+        order=order,
+        total_hours=total_hours,
+        total_rows=total_rows,
+        remaining_minutes=remaining_minutes,
+        today=today
     )
+
 
 if __name__ == "__main__":
     app.run(debug=True)
