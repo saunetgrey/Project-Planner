@@ -65,6 +65,20 @@ def calculate_plan(values):
     if bmr <= 0:
         raise ValueError("These measurements do not produce a valid calorie estimate.")
     bmi = weight / (height / 100) ** 2
+    if age < 20:
+        bmi_category = "Age-specific interpretation needed (under 20)"
+    elif bmi < 18.5:
+        bmi_category = "Underweight"
+    elif bmi < 25:
+        bmi_category = "Healthy weight"
+    elif bmi < 30:
+        bmi_category = "Overweight"
+    else:
+        bmi_category = "Obesity"
+    goal_protein = None
+    if str(values.get("goal_weight", "")).strip():
+        goal_weight = number(values, "goal_weight", "desired weight (kg)", 30, 350)
+        goal_protein = {"weight": goal_weight, "daily": round(goal_weight * 1.6)}
     floor = 1500 if sex == "male" else 1200
     loss = []
     for rate in (0.25, 0.5):
@@ -81,6 +95,8 @@ def calculate_plan(values):
             reason = "This calorie budget cannot accommodate the selected macro allocation."
         loss.append({"rate": rate, "plan": plan, "reason": reason})
     return {
+        "bmi": round(bmi, 2), "bmi_category": bmi_category,
+        "goal_protein": goal_protein,
         "body_fat": round(body_fat, 1), "bmr": round(bmr),
         "fat_mass": round(weight * body_fat / 100, 1),
         "lean_mass": round(weight * (1 - body_fat / 100), 1),

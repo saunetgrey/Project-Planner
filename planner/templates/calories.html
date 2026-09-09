@@ -22,7 +22,7 @@
     <div><p class="eyebrow">01 / YOUR STARTING POINT</p><h2 id="measurements-title">Your measurements</h2></div>
     <p class="helper">For adults 18+. These estimates are not intended for pregnancy or breastfeeding. Measurements are used for this calculation only and are not saved.</p>
     {% if error %}<p class="error-message" role="alert">{{ error }}</p>{% endif %}
-    <form method="post" action="{{ url_for('calories') }}" class="nutrition-form">
+    <form method="post" action="{{ url_for('calories') }}" class="nutrition-form" id="measurements-form">
       {% for key, label, unit, low, high in [('weight', 'Weight', 'kg', 30, 350), ('height', 'Height', 'cm', 120, 230), ('age', 'Age', 'years', 18, 100)] %}
       <label class="field">{{ label }} ({{ unit }})<input name="{{ key }}" type="number" min="{{ low }}" max="{{ high }}" step="{{ '1' if key == 'age' else '0.1' }}" value="{{ values.get(key, '') }}" required></label>
       {% endfor %}
@@ -41,6 +41,10 @@
           {% for key, activity in activities.items() %}<option value="{{ key }}" {{ 'selected' if values.get('activity', 'sedentary') == key }}>{{ activity[0] }}</option>{% endfor %}
         </select>
       </label>
+      <label class="field">Desired weight (kg, optional)
+        <input name="goal_weight" id="goal-weight" type="number" min="30" max="350" step="0.1" value="{{ values.get('goal_weight', '') }}" aria-describedby="goal-weight-help">
+      </label>
+      <p class="helper" id="goal-weight-help">Enter a goal weight to see a separate daily protein estimate using 1.6 g per kg of that weight.</p>
       <details class="field-wide measurement-help"><summary>How to measure</summary>
         <p>Use a relaxed stance and a level tape without compressing the skin. Measure height without shoes and neck just below the larynx. For the male equation, measure the abdomen at the navel. For the female equation, measure the natural waist at its narrowest point and hips at the widest point. Use centimeters throughout.</p>
         <p>These equations use sex-specific coefficients, not gender identity, and may be less suitable during hormone therapy or for some body types. Tape measurements provide an estimate, not a clinical body-composition assessment.</p>
@@ -70,6 +74,25 @@
       <article class="metric"><span>Fat mass</span><strong>{{ result.fat_mass }}<small> kg</small></strong><p>{{ result.lean_mass }} kg estimated lean mass (includes water, bone and organs)</p></article>
       <article class="metric"><span>Resting energy</span><strong>{{ '{:,}'.format(result.bmr) }}<small> kcal</small></strong><p>Per day, before activity</p></article>
     </div>
+    <div class="plan-grid body-goal-grid">
+      <article class="plan-card metric" aria-labelledby="bmi-title">
+        <p class="eyebrow">BODY MASS INDEX</p><h3 id="bmi-title">Your BMI</h3>
+        <strong>{{ '%.2f'|format(result.bmi) }} <small>kg/m²</small></strong>
+        <p>{{ result.bmi_category }}</p>
+        <p class="helper">Based on your current weight and height. BMI is a screening measure, not a diagnosis, and does not distinguish muscle from fat. Categories use the unrounded value; adult categories are shown for ages 20+.</p>
+      </article>
+      <article class="plan-card metric" aria-labelledby="goal-protein-title">
+        <p class="eyebrow">YOUR WEIGHT GOAL</p><h3 id="goal-protein-title">Protein per day</h3>
+        {% if result.goal_protein %}
+        <strong>{{ result.goal_protein.daily }} <small>g / day</small></strong>
+        <p>For a desired weight of {{ result.goal_protein.weight }} kg</p>
+        <p class="helper">{{ result.goal_protein.weight }} kg × 1.6 g/kg. This goal-weight calculation is a planning estimate, not a measured requirement or an assessment of whether your goal weight is suitable. The calorie-plan tables still use your current weight.</p>
+        {% else %}
+        <p class="helper">Add your desired weight in the form and calculate again to see your daily protein estimate.</p>
+        {% endif %}
+        <a href="#goal-weight">{{ 'Update' if result.goal_protein else 'Enter' }} desired weight</a>
+      </article>
+    </div>
     <article class="plan-card maintenance-card"><p class="eyebrow">MAINTAIN</p><h3>Maintain your current weight</h3><p class="helper">Estimated daily energy use including your selected activity level.</p>{{ totals(result.maintenance) }}</article>
     <div class="section-heading"><p class="eyebrow">FAT LOSS</p><h3>Compare weekly loss targets</h3><p class="helper">Rough energy-deficit scenarios using 7,700 kcal/kg. Actual loss includes changes in water and lean tissue; these are not predictions of pure fat loss. Your needs change as your weight changes.</p></div>
     <div class="plan-grid">{% for scenario in result.loss %}
@@ -85,6 +108,8 @@
     <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg for maintenance and 2.0 g/kg for fat loss. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat).</p>
     <p>Fat-loss plans below 1,200 kcal/day (female equation) or 1,500 (male equation), over 1% body weight/week, or for BMI below 18.5 are withheld as conservative screening choices. Personal needs may be higher.</p>
     <ul>
+      <li><a href="https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html">CDC: adult BMI categories and screening limitations</a></li>
+      <li><a href="https://www.nasm.org/resource-center/blog/nutrition/how-much-protein-should-you-eat-per-day-to-support-weight-loss">NASM: protein planning at 1.6 g/kg of body weight</a> (using desired weight here is a planning choice).</li>
       <li><a href="https://pubmed.ncbi.nlm.nih.gov/2305711/">Mifflin–St Jeor resting energy study</a></li>
       <li><a href="https://www.nasm.org/resources/calorie-calculator">NASM: activity multipliers</a></li>
       <li><a href="https://media.defense.gov/2022/Mar/31/2002967299/-1/-1/0/CI_1020_8I.PDF">US Coast Guard: circumference measurement equations</a></li>

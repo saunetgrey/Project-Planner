@@ -17,6 +17,8 @@ details p { margin: 14px 0 0; }
 .metric-grid, .plan-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .metric-grid { margin: 22px 0; }
+.body-goal-grid { margin-bottom: 22px; }
+.body-goal-grid a { display: inline-block; margin-top: 14px; color: #4338ca; }
 .metric, .plan-card { padding: 22px; background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; }
 .metric span { color: #526175; font-size: .82rem; }
 .metric strong { display: block; font-size: 2rem; letter-spacing: -.04em; margin-top: 10px; }
