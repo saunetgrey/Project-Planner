@@ -1,6 +1,6 @@
-from Show import Show
+from planner.models.show import Show
 from datetime import date
-from db import get_connection
+from planner.db import get_connection
 
 
 class ShowApp:

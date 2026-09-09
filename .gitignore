@@ -1,5 +1,6 @@
 # Python
 *.py[cod]
+__pycache__/
 
 # Virtual environment
 .venv/
@@ -7,6 +8,8 @@ venv/
 
 # Environment variables
 .env
+.env.*
+!.env.example
 
 # OS
 .DS_Store
@@ -24,3 +27,10 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+
+# Local planner data
+tasks.json
+
+# Editor settings
+.idea/
+.vscode/

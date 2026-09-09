@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import date
-from Task import Task
+from planner.models.task import Task
 
 class TaskApp:
     def __init__(self):
