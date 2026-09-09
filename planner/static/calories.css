@@ -1,0 +1,46 @@
+.calorie-shell { width: min(100% - 32px, 1100px); }
+.page-nav { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 42px; }
+.page-nav a { color: #475569; text-decoration: none; font-size: .9rem; font-weight: 700; }
+.page-nav a[aria-current] { color: #4338ca; }
+.page-nav a:hover { text-decoration: underline; }
+.calorie-shell .intro { max-width: 650px; }
+.nutrition-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.nutrition-form [hidden] { display: none; }
+.activity-field { grid-column: span 2; }
+.helper, .measurement-help, .method-card, .target-note { color: #526175; font-size: .9rem; line-height: 1.65; }
+.helper { margin: 12px 0 20px; }
+summary { cursor: pointer; font-weight: 700; }
+details p { margin: 14px 0 0; }
+.error-message, .caution { padding: 14px; border-radius: 10px; background: #fff7ed; color: #9a3412; line-height: 1.6; }
+.error-message { border: 1px solid #fdba74; }
+.results-section { margin-top: 44px; }
+.metric-grid, .plan-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.metric-grid { margin: 22px 0; }
+.metric, .plan-card { padding: 22px; background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; }
+.metric span { color: #526175; font-size: .82rem; }
+.metric strong { display: block; font-size: 2rem; letter-spacing: -.04em; margin-top: 10px; }
+.metric small { font-size: .95rem; letter-spacing: normal; }
+.metric p { margin: 6px 0 0; font-size: .78rem; color: #526175; line-height: 1.5; }
+.maintenance-card { background: #eef2ff; border-color: #c7d2fe; }
+.plan-card h3, .section-heading h3 { margin: 0; font-size: 1.3rem; letter-spacing: -.025em; }
+.section-heading { margin: 34px 0 16px; }
+.table-scroll { overflow-x: auto; }
+.macro-table { border-collapse: collapse; width: 100%; margin-top: 18px; font-size: .87rem; }
+.macro-table th, .macro-table td { padding: 12px 4px; text-align: right; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+.macro-table th:first-child { text-align: left; }
+.macro-table thead { color: #526175; font-size: .75rem; }
+.macro-table small { color: #526175; font-weight: 400; }
+.macro-table tbody tr:first-child { color: #4338ca; font-weight: 800; }
+.target-note { font-size: .8rem; margin: 12px 0 0; }
+.results-note { margin-top: 20px; }
+.method-card { margin: 30px 0 10px; padding: 20px; border: 1px solid #cbd5e1; border-radius: 14px; }
+.method-card a { color: #4338ca; }
+.method-card li { margin-top: 8px; }
+a:focus-visible, summary:focus-visible, button:focus-visible { outline: 3px solid #818cf8; outline-offset: 4px; }
+@media (max-width: 900px) { .plan-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .nutrition-form, .metric-grid { grid-template-columns: 1fr; }
+  .activity-field { grid-column: auto; }
+  .page-nav { margin-bottom: 28px; }
+  .metric, .plan-card { padding: 18px; }
+}

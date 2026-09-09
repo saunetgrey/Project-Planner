@@ -1,10 +1,26 @@
 from datetime import date
 from flask import Flask, render_template, request, redirect, url_for
 from planner.services.shows import ShowApp
+from planner.services.nutrition import calculate_plan, ACTIVITIES
 
 app = Flask(__name__)
 
 show_app = ShowApp()
+
+
+@app.route("/", methods=["GET", "POST"])
+def calories():
+    result = None
+    error = None
+    if request.method == "POST":
+        try:
+            result = calculate_plan(request.form)
+        except ValueError as exc:
+            error = str(exc)
+    return render_template(
+        "calories.html", result=result, error=error,
+        values=request.form, activities=ACTIVITIES,
+    ), 400 if error else 200
 
 
 @app.route("/shows")

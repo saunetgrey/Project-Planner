@@ -1,9 +1,13 @@
 # Project Planner
 
-A small Flask planner for keeping track of TV shows and a daily viewing schedule. Show data is stored in PostgreSQL in NEON, with a responsive web interface built using CSS, and JavaScript.
+A small Flask planner for estimating nutrition needs and keeping track of TV shows. Show data is stored in PostgreSQL in NEON, with a responsive web interface built using CSS and JavaScript. Nutrition calculations do not require a database connection and do not save measurements.
 
 ## Features
 
+- Track calories on the home page (`/`) using weight, height, age, sex used for equations, activity level, waist, neck, and (for the female equation) hip measurements.
+- Estimate body fat, fat and lean mass, maintenance calories, and daily/weekly protein, carbs, and fat.
+- Compare 0.25, 0.5, and 0.75 kg/week fat-loss scenarios, with screening for overly restrictive plans.
+- View a starting muscle-building nutrition plan alongside requested gains of 0.25, 0.5, and 0.76 kg/week. Exact muscle gains cannot be predicted from calories; all three use the same 10% surplus starting plan.
 - Add, edit, and delete shows.
 - Set episodes remaining, minutes per episode, and episodes to watch each day.
 - Mark a day's viewing complete once per day; finished shows are removed automatically.
@@ -14,7 +18,7 @@ The repository also includes a JSON-backed task planner model, service, and temp
 
 ## Getting started
 
-Use Python 3.11, pip, and access to the existing PostgreSQL database with SSL enabled and the `shows` table already created.
+Use Python 3.11 and pip. The show planner also requires access to the existing PostgreSQL database with SSL enabled and the `shows` table already created.
 
 ### 1. Install dependencies
 
@@ -44,6 +48,8 @@ python -m pip install -r requirements.txt
 
 ### 2. Configure the database
 
+This step is needed only for the show planner.
+
 Set the connection URL for your existing database in the same terminal you will use to run the app:
 
 ```powershell
@@ -64,7 +70,7 @@ export DATABASE_URL="postgresql://username:password@hostname:5432/planner"
 python app.py
 ```
 
-Open **http://127.0.0.1:5000/shows**. The root URL (`/`) has no route. The database must be available before startup because the app loads shows during initialization.
+Open **http://127.0.0.1:5000/** for Track calories, or **http://127.0.0.1:5000/shows** for the show planner. The app connects to the database only when a show operation needs it.
 
 The local command enables Flask's development debugger. On a Unix host, the existing WSGI entry point can be served with:
 
@@ -78,11 +84,11 @@ gunicorn app:app
 .
 ├── app.py                  # Development / WSGI entry point
 ├── planner/
-│   ├── web.py              # Flask application and show routes
+│   ├── web.py              # Flask application, nutrition and show routes
 │   ├── db.py               # PostgreSQL connection helper
 │   ├── models/             # Show and task data models
-│   ├── services/           # Persistence and progress tracking
-│   ├── static/style.css    # Web styles
+│   ├── services/           # Nutrition calculations, persistence and progress
+│   ├── static/             # Shared styles, nutrition styles and JavaScript
 │   └── templates/          # Jinja page templates
 ├── .env.example            # Configuration reference
 ├── .python-version         # Python version for development
@@ -93,5 +99,6 @@ gunicorn app:app
 
 - Run commands from the repository root.
 - The task service reads and writes `tasks.json` in the working directory; this local data is ignored by Git.
-- There is currently no automated test suite. With a configured database, smoke-test adding, editing, sorting, completing, and deleting a show at `/shows`.
+- Check nutrition calculations at `/`. With a configured database, check adding, editing, sorting, completing, and deleting shows at `/shows`.
+- Nutrition estimates use Mifflin–St Jeor and historical Navy circumference equations. The page documents the activity factors, macro choices, limits, and source links. The fixed energy-deficit calculation is a rough scenario, not a dynamic weight-loss prediction or a guarantee of fat loss.
 - The app currently has no authentication and uses one shared show list. Keep that in mind when choosing where to host it.

@@ -6,7 +6,6 @@ from planner.db import get_connection
 class ShowApp:
     def __init__(self):
         self.shows = []
-        self.load_shows()
 
     def load_shows(self):
         conn = get_connection()

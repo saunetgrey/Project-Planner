@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Track calories | Tasks To Complete</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='calories.css') }}">
+</head>
+<body class="shows-page">
+<main class="show-shell calorie-shell">
+  <nav class="page-nav" aria-label="Main navigation">
+    <a href="{{ url_for('calories') }}" aria-current="page">Track calories</a>
+    <a href="{{ url_for('shows') }}">Show planner <span aria-hidden="true">↗</span></a>
+  </nav>
+  <header class="page-header">
+    <p class="eyebrow">YOUR DAILY FUEL</p>
+    <h1>Track calories</h1>
+    <p class="intro">Get to know your energy needs. Compare a maintenance plan, fat-loss scenarios, and a starting plan for building muscle.</p>
+  </header>
+  <section class="show-form-card" aria-labelledby="measurements-title">
+    <div><p class="eyebrow">01 / YOUR STARTING POINT</p><h2 id="measurements-title">Your measurements</h2></div>
+    <p class="helper">For adults 18+. These estimates are not intended for pregnancy or breastfeeding. Measurements are used for this calculation only and are not saved.</p>
+    {% if error %}<p class="error-message" role="alert">{{ error }}</p>{% endif %}
+    <form method="post" action="{{ url_for('calories') }}" class="nutrition-form">
+      {% for key, label, unit, low, high in [('weight', 'Weight', 'kg', 30, 350), ('height', 'Height', 'cm', 120, 230), ('age', 'Age', 'years', 18, 100)] %}
+      <label class="field">{{ label }} ({{ unit }})<input name="{{ key }}" type="number" min="{{ low }}" max="{{ high }}" step="{{ '1' if key == 'age' else '0.1' }}" value="{{ values.get(key, '') }}" required></label>
+      {% endfor %}
+      <label class="field">Sex used for equations
+        <select name="sex" id="sex" required>
+          <option value="">Choose an equation</option>
+          <option value="male" {{ 'selected' if values.get('sex') == 'male' }}>Male</option>
+          <option value="female" {{ 'selected' if values.get('sex') == 'female' }}>Female</option>
+        </select>
+      </label>
+      {% for key, label, low, high in [('waist', 'Waist / abdomen', 40, 250), ('neck', 'Neck', 20, 80), ('hip', 'Hips (required for female equation)', 40, 250)] %}
+      <label class="field" {% if key == 'hip' %}id="hip-field"{% endif %}>{{ label }} (cm)<input name="{{ key }}" id="{{ key }}" type="number" min="{{ low }}" max="{{ high }}" step="0.1" value="{{ values.get(key, '') }}" {{ 'required' if key != 'hip' }}></label>
+      {% endfor %}
+      <label class="field activity-field">Activity level
+        <select name="activity" required>
+          {% for key, activity in activities.items() %}<option value="{{ key }}" {{ 'selected' if values.get('activity', 'sedentary') == key }}>{{ activity[0] }}</option>{% endfor %}
+        </select>
+      </label>
+      <details class="field-wide measurement-help"><summary>How to measure</summary>
+        <p>Use a relaxed stance and a level tape without compressing the skin. Measure height without shoes and neck just below the larynx. For the male equation, measure the abdomen at the navel. For the female equation, measure the natural waist at its narrowest point and hips at the widest point. Use centimeters throughout.</p>
+        <p>These equations use sex-specific coefficients, not gender identity, and may be less suitable during hormone therapy or for some body types. Tape measurements provide an estimate, not a clinical body-composition assessment.</p>
+      </details>
+      <div class="form-actions"><button class="button" type="submit">Calculate my plan <span aria-hidden="true">&nbsp;→</span></button></div>
+    </form>
+  </section>
+
+  {% macro totals(plan) %}
+    {% if plan %}
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Daily and weekly nutrition totals">
+      <table class="macro-table">
+        <thead><tr><th scope="col">Nutrient</th><th scope="col">Per day</th><th scope="col">Per week</th></tr></thead>
+        <tbody>{% for key, label, unit in [('calories', 'Calories', 'kcal'), ('protein', 'Protein', 'g'), ('carbs', 'Carbs', 'g'), ('fat', 'Fat', 'g')] %}
+          <tr><th scope="row">{{ label }}</th><td>{{ '{:,}'.format(plan.daily[key]) }} <small>{{ unit }}</small></td><td>{{ '{:,}'.format(plan.weekly[key]) }} <small>{{ unit }}</small></td></tr>
+        {% endfor %}</tbody>
+      </table>
+    </div>
+    {% else %}<p class="helper">The macro allocation does not fit this energy estimate. Seek an individual nutrition assessment.</p>{% endif %}
+  {% endmacro %}
+
+  {% if result %}
+  <section class="results-section" aria-labelledby="results-title">
+    <p class="eyebrow">02 / YOUR ESTIMATES</p><h2 id="results-title">A starting point, built around you</h2>
+    <div class="metric-grid">
+      <article class="metric"><span>Estimated body fat</span><strong>{{ result.body_fat }}<small>%</small></strong><p>From tape measurements</p></article>
+      <article class="metric"><span>Fat mass</span><strong>{{ result.fat_mass }}<small> kg</small></strong><p>{{ result.lean_mass }} kg estimated lean mass (includes water, bone and organs)</p></article>
+      <article class="metric"><span>Resting energy</span><strong>{{ '{:,}'.format(result.bmr) }}<small> kcal</small></strong><p>Per day, before activity</p></article>
+    </div>
+    <article class="plan-card maintenance-card"><p class="eyebrow">MAINTAIN</p><h3>Maintain your current weight</h3><p class="helper">Estimated daily energy use including your selected activity level.</p>{{ totals(result.maintenance) }}</article>
+    <div class="section-heading"><p class="eyebrow">FAT LOSS</p><h3>Compare weekly loss targets</h3><p class="helper">Rough energy-deficit scenarios using 7,700 kcal/kg. Actual loss includes changes in water and lean tissue; these are not predictions of pure fat loss. Your needs change as your weight changes.</p></div>
+    <div class="plan-grid">{% for scenario in result.loss %}
+      <article class="plan-card"><p class="eyebrow">LOSS TARGET</p><h3>{{ scenario.rate }} kg / week</h3>
+      {% if scenario.reason %}<p class="caution">{{ scenario.reason }}</p>{% else %}{{ totals(scenario.plan) }}{% endif %}</article>
+    {% endfor %}</div>
+    <div class="section-heading"><p class="eyebrow">BUILD MUSCLE</p><h3>Fuel training. Review your progress.</h3><p class="helper">There is no reliable calorie-to-muscle conversion for a fixed weekly muscle gain. Each requested target below therefore shows the same starting plan: 10% above maintenance, alongside progressive resistance training. Faster weight gain may add more fat, not more muscle.</p></div>
+    <div class="plan-grid">{% for rate in result.gain_rates %}
+      <article class="plan-card"><p class="eyebrow">REQUESTED MUSCLE GAIN</p><h3>{{ rate }} kg / week</h3><p class="target-note">An aspiration, not a predicted outcome.<br>Starting nutrition plan:</p>{{ totals(result.gain) }}</article>
+    {% endfor %}</div>
+    <p class="helper results-note">Weekly totals are seven times the rounded daily values. Follow your average weight and training performance over a few weeks and adjust gradually. Screening limits do not establish that every displayed plan is suitable for you.</p>
+  </section>
+  {% endif %}
+  <details class="method-card">
+    <summary>Calculation methods &amp; sources</summary>
+    <p>Resting energy uses Mifflin–St Jeor: 10 × weight (kg) + 6.25 × height (cm) − 5 × age, plus 5 for the male equation or minus 161 for the female equation. Activity multipliers range from 1.2 to 1.9. Body fat uses historical Navy circumference equations with measurements converted to inches.</p>
+    <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg for maintenance, 2.0 g/kg for fat loss, and 1.8 g/kg for muscle gain. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat).</p>
+    <p>Fat-loss plans below 1,200 kcal/day (female equation) or 1,500 (male equation), over 1% body weight/week, or for BMI below 18.5 are withheld as conservative screening choices. Personal needs may be higher.</p>
+    <ul>
+      <li><a href="https://pubmed.ncbi.nlm.nih.gov/2305711/">Mifflin–St Jeor resting energy study</a></li>
+      <li><a href="https://www.nasm.org/resources/calorie-calculator">NASM: activity multipliers</a></li>
+      <li><a href="https://media.defense.gov/2022/Mar/31/2002967299/-1/-1/0/CI_1020_8I.PDF">US Coast Guard: circumference measurement equations</a></li>
+      <li><a href="https://www.nasm.org/resource-center/blog/nutrition/strength-on-a-plate-the-weight-lifting-diet-guide">NASM: protein for strength training</a></li>
+      <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10620361/">Energy surplus and muscle growth study</a></li>
+      <li><a href="https://www.niddk.nih.gov/health-information/weight-management/body-weight-planner">NIDDK: dynamic body-weight planning and applicability</a></li>
+      <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4035446/">Limitations of the fixed 7,700 kcal/kg weight-loss rule</a></li>
+    </ul>
+  </details>
+</main>
+<script src="{{ url_for('static', filename='calories.js') }}" defer></script>
+</body>
+</html>
