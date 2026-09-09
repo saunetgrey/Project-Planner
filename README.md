@@ -6,8 +6,7 @@ A small Flask planner for estimating nutrition needs and keeping track of TV sho
 
 - Track calories on the home page (`/`) using weight, height, age, sex used for equations, activity level, waist, neck, and (for the female equation) hip measurements.
 - Estimate body fat, fat and lean mass, maintenance calories, and daily/weekly protein, carbs, and fat.
-- Compare 0.25, 0.5, and 0.75 kg/week fat-loss scenarios, with screening for overly restrictive plans.
-- View a starting muscle-building nutrition plan alongside requested gains of 0.25, 0.5, and 0.76 kg/week. Exact muscle gains cannot be predicted from calories; all three use the same 10% surplus starting plan.
+- Compare 0.25 and 0.5 kg/week fat-loss scenarios, with screening for overly restrictive plans.
 - Add, edit, and delete shows.
 - Set episodes remaining, minutes per episode, and episodes to watch each day.
 - Mark a day's viewing complete once per day; finished shows are removed automatically.

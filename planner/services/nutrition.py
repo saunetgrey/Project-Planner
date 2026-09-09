@@ -67,7 +67,7 @@ def calculate_plan(values):
     bmi = weight / (height / 100) ** 2
     floor = 1500 if sex == "male" else 1200
     loss = []
-    for rate in (0.25, 0.5, 0.75):
+    for rate in (0.25, 0.5):
         calories = maintenance - rate * 7700 / 7
         reason = None
         if bmi < 18.5:
@@ -85,6 +85,4 @@ def calculate_plan(values):
         "fat_mass": round(weight * body_fat / 100, 1),
         "lean_mass": round(weight * (1 - body_fat / 100), 1),
         "maintenance": macros(maintenance, weight, 1.6), "loss": loss,
-        "gain": macros(maintenance * 1.10, weight, 1.8),
-        "gain_rates": (0.25, 0.5, 0.76),
     }

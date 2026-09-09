@@ -16,7 +16,7 @@
   <header class="page-header">
     <p class="eyebrow">YOUR DAILY FUEL</p>
     <h1>Track calories</h1>
-    <p class="intro">Get to know your energy needs. Compare a maintenance plan, fat-loss scenarios, and a starting plan for building muscle.</p>
+    <p class="intro">Get to know your energy needs. Compare a maintenance plan and fat-loss scenarios.</p>
   </header>
   <section class="show-form-card" aria-labelledby="measurements-title">
     <div><p class="eyebrow">01 / YOUR STARTING POINT</p><h2 id="measurements-title">Your measurements</h2></div>
@@ -76,24 +76,19 @@
       <article class="plan-card"><p class="eyebrow">LOSS TARGET</p><h3>{{ scenario.rate }} kg / week</h3>
       {% if scenario.reason %}<p class="caution">{{ scenario.reason }}</p>{% else %}{{ totals(scenario.plan) }}{% endif %}</article>
     {% endfor %}</div>
-    <div class="section-heading"><p class="eyebrow">BUILD MUSCLE</p><h3>Fuel training. Review your progress.</h3><p class="helper">There is no reliable calorie-to-muscle conversion for a fixed weekly muscle gain. Each requested target below therefore shows the same starting plan: 10% above maintenance, alongside progressive resistance training. Faster weight gain may add more fat, not more muscle.</p></div>
-    <div class="plan-grid">{% for rate in result.gain_rates %}
-      <article class="plan-card"><p class="eyebrow">REQUESTED MUSCLE GAIN</p><h3>{{ rate }} kg / week</h3><p class="target-note">An aspiration, not a predicted outcome.<br>Starting nutrition plan:</p>{{ totals(result.gain) }}</article>
-    {% endfor %}</div>
     <p class="helper results-note">Weekly totals are seven times the rounded daily values. Follow your average weight and training performance over a few weeks and adjust gradually. Screening limits do not establish that every displayed plan is suitable for you.</p>
   </section>
   {% endif %}
   <details class="method-card">
     <summary>Calculation methods &amp; sources</summary>
     <p>Resting energy uses Mifflin–St Jeor: 10 × weight (kg) + 6.25 × height (cm) − 5 × age, plus 5 for the male equation or minus 161 for the female equation. Activity multipliers range from 1.2 to 1.9. Body fat uses historical Navy circumference equations with measurements converted to inches.</p>
-    <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg for maintenance, 2.0 g/kg for fat loss, and 1.8 g/kg for muscle gain. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat).</p>
+    <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg for maintenance and 2.0 g/kg for fat loss. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat).</p>
     <p>Fat-loss plans below 1,200 kcal/day (female equation) or 1,500 (male equation), over 1% body weight/week, or for BMI below 18.5 are withheld as conservative screening choices. Personal needs may be higher.</p>
     <ul>
       <li><a href="https://pubmed.ncbi.nlm.nih.gov/2305711/">Mifflin–St Jeor resting energy study</a></li>
       <li><a href="https://www.nasm.org/resources/calorie-calculator">NASM: activity multipliers</a></li>
       <li><a href="https://media.defense.gov/2022/Mar/31/2002967299/-1/-1/0/CI_1020_8I.PDF">US Coast Guard: circumference measurement equations</a></li>
       <li><a href="https://www.nasm.org/resource-center/blog/nutrition/strength-on-a-plate-the-weight-lifting-diet-guide">NASM: protein for strength training</a></li>
-      <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10620361/">Energy surplus and muscle growth study</a></li>
       <li><a href="https://www.niddk.nih.gov/health-information/weight-management/body-weight-planner">NIDDK: dynamic body-weight planning and applicability</a></li>
       <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4035446/">Limitations of the fixed 7,700 kcal/kg weight-loss rule</a></li>
     </ul>
