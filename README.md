@@ -1,4 +1,4 @@
-# Tasks To Complete
+# Project Planner
 
 A small Flask planner for keeping track of TV shows and a daily viewing schedule. Show data is stored in PostgreSQL, with a responsive web interface built using Jinja templates, CSS, and JavaScript.
 
