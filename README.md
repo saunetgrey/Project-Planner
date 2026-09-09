@@ -1,6 +1,6 @@
 # Project Planner
 
-A small Flask planner for keeping track of TV shows and a daily viewing schedule. Show data is stored in PostgreSQL, with a responsive web interface built using Jinja templates, CSS, and JavaScript.
+A small Flask planner for keeping track of TV shows and a daily viewing schedule. Show data is stored in PostgreSQL in NEON, with a responsive web interface built using CSS, and JavaScript.
 
 ## Features
 
