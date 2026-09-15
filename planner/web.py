@@ -1,11 +1,28 @@
 from datetime import date
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, make_response, render_template, request, redirect, url_for
 from planner.services.shows import ShowApp
 from planner.services.nutrition import calculate_plan, ACTIVITIES
 
 app = Flask(__name__)
 
 show_app = ShowApp()
+
+SORT_KEYS = {
+    "episodes": lambda show: show.number_of_episodes,
+    "minutes": lambda show: show.minutes_per_episode,
+    "ep/day": lambda show: show.episodes_per_day,
+    "days": lambda show: show.days_remaining,
+}
+
+
+def show_sort_options():
+    sort_by = request.args.get("sort_by", request.cookies.get("shows_sort_by", "episodes"))
+    order = request.args.get("order", request.cookies.get("shows_order", "desc"))
+    if sort_by not in SORT_KEYS:
+        sort_by = "episodes"
+    if order not in ("asc", "desc"):
+        order = "desc"
+    return sort_by, order
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -27,25 +44,10 @@ def calories():
 def shows():
     show_app.load_shows()
 
-    sort_by = request.args.get("sort_by")
-    order = request.args.get("order", "desc")
+    sort_by, order = show_sort_options()
 
     shows = show_app.shows
-
-    if sort_by:
-        reverse = True if order == "desc" else False
-
-        if sort_by == "episodes":
-            shows.sort(key=lambda x: x.number_of_episodes, reverse=reverse)
-
-        elif sort_by == "minutes":
-            shows.sort(key=lambda x: x.minutes_per_episode, reverse=reverse)
-
-        elif sort_by == "ep/day":
-            shows.sort(key=lambda x: x.episodes_per_day, reverse=reverse)
-
-        elif sort_by == "days":
-            shows.sort(key=lambda x: x.days_remaining, reverse=reverse)
+    shows.sort(key=SORT_KEYS[sort_by], reverse=order == "desc")
 
     today = date.today()
 
@@ -58,7 +60,7 @@ def shows():
     remaining_minutes = total_minutes % 60
     total_rows = len(show_app.shows)
 
-    return render_template(
+    response = make_response(render_template(
         "shows.html",
         shows=shows,
         today=date.today(),
@@ -67,7 +69,11 @@ def shows():
         total_hours=total_hours,
         total_rows=total_rows,
         remaining_minutes=remaining_minutes
-    )
+    ))
+    if "sort_by" in request.args or "order" in request.args:
+        response.set_cookie("shows_sort_by", sort_by, max_age=31536000, samesite="Lax")
+        response.set_cookie("shows_order", order, max_age=31536000, samesite="Lax")
+    return response
 
 
 @app.route("/add_show", methods=["POST"])
@@ -103,8 +109,8 @@ def delete_show(show_id):
 def edit_show(show_id):
     show_app.load_shows()
 
-    sort_by = request.args.get("sort_by")
-    order = request.args.get("order", "desc")
+    sort_by, order = show_sort_options()
+    show_app.shows.sort(key=SORT_KEYS[sort_by], reverse=order == "desc")
 
     show = next((s for s in show_app.shows if s.id == show_id), None)
     if show is None:
