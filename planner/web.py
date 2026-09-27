@@ -79,6 +79,7 @@ def shows():
 @app.route("/add_show", methods=["POST"])
 def add_show():
     name = request.form["name"]
+    streaming_service = request.form.get("streaming_service", "").strip() or None
     episodes = int(request.form["episodes"])
     minutes = int(request.form["minutes"])
     episodes_per_day = int(request.form["episodes_per_day"])
@@ -86,9 +87,9 @@ def add_show():
     edit_id = request.form.get("edit_id")
 
     if edit_id:
-        show_app.update_show(edit_id, name, episodes, minutes, episodes_per_day)
+        show_app.update_show(edit_id, name, episodes, minutes, episodes_per_day, streaming_service)
     else:
-        show_app.add_show(name, episodes, minutes, episodes_per_day)
+        show_app.add_show(name, episodes, minutes, episodes_per_day, streaming_service)
 
     return redirect(url_for("shows"))
 

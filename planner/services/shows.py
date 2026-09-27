@@ -11,7 +11,12 @@ class ShowApp:
         conn = get_connection()
         cur = conn.cursor()
 
-        cur.execute("SELECT * FROM shows")
+        cur.execute("""
+            SELECT id, name, remaining_episodes, minutes_per_episode,
+                   episodes_per_day, days_completed, last_completed_date,
+                   streaming_service
+            FROM shows
+        """)
         rows = cur.fetchall()
 
         self.shows = []
@@ -21,7 +26,8 @@ class ShowApp:
                 row[1],
                 row[2],
                 row[4],
-                row[3]
+                row[3],
+                row[7]
             )
             s.id = row[0]
             s.days_completed = row[5]
@@ -31,20 +37,20 @@ class ShowApp:
         cur.close()
         conn.close()
 
-    def add_show(self, name, episodes, minutes, episodes_per_day):
+    def add_show(self, name, episodes, minutes, episodes_per_day, streaming_service=None):
         conn = get_connection()
         cur = conn.cursor()
 
         cur.execute("""
-            INSERT INTO shows (name, remaining_episodes, minutes_per_episode, episodes_per_day)
-            VALUES (%s, %s, %s, %s)
-        """, (name, episodes, minutes, episodes_per_day))
+            INSERT INTO shows (name, remaining_episodes, minutes_per_episode, episodes_per_day, streaming_service)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (name, episodes, minutes, episodes_per_day, streaming_service))
 
         conn.commit()
         cur.close()
         conn.close()
 
-    def update_show(self, show_id, name, episodes, minutes, episodes_per_day):
+    def update_show(self, show_id, name, episodes, minutes, episodes_per_day, streaming_service=None):
         conn = get_connection()
         cur = conn.cursor()
 
@@ -53,9 +59,10 @@ class ShowApp:
             SET name=%s,
                 remaining_episodes=%s,
                 minutes_per_episode=%s,
-                episodes_per_day=%s
+                episodes_per_day=%s,
+                streaming_service=%s
             WHERE id=%s
-        """, (name, episodes, minutes, episodes_per_day, show_id))
+        """, (name, episodes, minutes, episodes_per_day, streaming_service, show_id))
 
         conn.commit()
         cur.close()

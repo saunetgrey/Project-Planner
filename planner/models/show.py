@@ -1,9 +1,10 @@
 import math
 
 class Show:
-    def __init__(self, name, number_of_episodes, episodes_per_day, minutes_per_episode):
+    def __init__(self, name, number_of_episodes, episodes_per_day, minutes_per_episode, streaming_service=None):
         self.id = None
         self.name = name
+        self.streaming_service = streaming_service
         self.number_of_episodes = number_of_episodes
         self.episodes_per_day = episodes_per_day
         self.minutes_per_episode = minutes_per_episode

@@ -37,6 +37,7 @@
             class="status {{ 'is-done-today' if show.last_completed_date == today else '' }}">{{ 'Watched today' if
             show.last_completed_date == today else 'To watch' }}</span>
         </div>
+        <p class="streaming-service">Streaming service: {{ show.streaming_service or 'Not specified' }}</p>
         <div class="show-stats">
           <div><strong>{{ show.remaining_episodes }}</strong><span>episodes left</span></div>
           <div><strong>{{ show.days_remaining }}</strong><span>days left</span></div>
@@ -58,7 +59,9 @@
       </div>
       <form method="POST" action="{{ url_for('add_show') }}" class="show-form"><label class="field field-wide">Show
           name<input name="name" placeholder="e.g. The Bear" value="{{ edit_show.name if edit_show else '' }}"
-            required></label><label class="field">Total episodes<input name="episodes" type="number" min="1"
+            required></label><label class="field field-wide">Streaming service (optional)<input name="streaming_service"
+            placeholder="e.g. Netflix, Disney+, Prime Video"
+            value="{{ (edit_show.streaming_service or '') if edit_show else '' }}"></label><label class="field">Total episodes<input name="episodes" type="number" min="1"
             inputmode="numeric" placeholder="10" value="{{ edit_show.number_of_episodes if edit_show else '' }}"
             required></label><label class="field">Minutes per episode<input name="minutes" type="number" min="1"
             inputmode="numeric" placeholder="45" value="{{ edit_show.minutes_per_episode if edit_show else '' }}"
