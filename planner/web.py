@@ -40,40 +40,61 @@ def calories():
     ), 400 if error else 200
 
 
-@app.route("/shows")
-def shows():
-    show_app.load_shows()
-
+def render_show_page(edit_show=None):
     sort_by, order = show_sort_options()
-
-    shows = show_app.shows
-    shows.sort(key=SORT_KEYS[sort_by], reverse=order == "desc")
+    service_filter = request.args.get(
+        "service", request.cookies.get("shows_service", "")
+    )
+    service_options = {}
+    for show in show_app.shows:
+        label = (show.streaming_service or "").strip()
+        key = "service:" + label.casefold() if label else "unspecified"
+        service_options.setdefault(key, label or "Not specified")
+    # Keep a selected service available even after its last show is removed.
+    if service_filter and service_filter not in service_options:
+        if service_filter.startswith("service:"):
+            service_options[service_filter] = service_filter[len("service:"):]
+        elif service_filter == "unspecified":
+            service_options[service_filter] = "Not specified"
+        else:
+            service_filter = ""
 
     today = date.today()
-
-    total_minutes = sum(
-        show.total_time_spent
-        for show in shows
-        if show.last_completed_date != today
-    )
-    total_hours = total_minutes // 60
-    remaining_minutes = total_minutes % 60
-    total_rows = len(show_app.shows)
-
+    visible_shows = []
+    for show in show_app.shows:
+        if show.last_completed_date == today or show.remaining_episodes <= 0:
+            continue
+        service = (show.streaming_service or "").strip()
+        key = "service:" + service.casefold() if service else "unspecified"
+        if not service_filter or key == service_filter:
+            visible_shows.append(show)
+    visible_shows.sort(key=SORT_KEYS[sort_by], reverse=order == "desc")
+    total_minutes = sum(show.total_time_spent for show in visible_shows)
     response = make_response(render_template(
         "shows.html",
-        shows=shows,
-        today=date.today(),
+        shows=visible_shows,
+        edit_show=edit_show,
+        today=today,
         sort_by=sort_by,
         order=order,
-        total_hours=total_hours,
-        total_rows=total_rows,
-        remaining_minutes=remaining_minutes
+        service_filter=service_filter,
+        service_options=sorted(service_options.items(), key=lambda item: item[1].casefold()),
+        total_hours=total_minutes // 60,
+        remaining_minutes=total_minutes % 60,
+        total_rows=len(visible_shows),
     ))
     if "sort_by" in request.args or "order" in request.args:
         response.set_cookie("shows_sort_by", sort_by, max_age=31536000, samesite="Lax")
         response.set_cookie("shows_order", order, max_age=31536000, samesite="Lax")
+    if "service" in request.args:
+        response.set_cookie("shows_service", service_filter, max_age=31536000, samesite="Lax")
     return response
+
+
+@app.route("/shows")
+def shows():
+    show_app.load_shows()
+    return render_show_page()
 
 
 @app.route("/add_show", methods=["POST"])
@@ -110,35 +131,7 @@ def delete_show(show_id):
 def edit_show(show_id):
     show_app.load_shows()
 
-    sort_by, order = show_sort_options()
-    show_app.shows.sort(key=SORT_KEYS[sort_by], reverse=order == "desc")
-
     show = next((s for s in show_app.shows if s.id == show_id), None)
     if show is None:
         return redirect(url_for("shows"))
-
-    today = date.today()
-
-    total_minutes = sum(
-        show.total_time_spent
-        for show in show_app.shows
-        if show.last_completed_date != today
-    )
-
-    total_hours = total_minutes // 60
-    remaining_minutes = total_minutes % 60
-    total_rows = len(show_app.shows)
-
-    return render_template(
-        "shows.html",
-        shows=show_app.shows,
-        edit_show=show,
-        sort_by=sort_by,
-        order=order,
-        total_hours=total_hours,
-        total_rows=total_rows,
-        remaining_minutes=remaining_minutes,
-        today=today
-    )
-
-
+    return render_show_page(edit_show=show)
