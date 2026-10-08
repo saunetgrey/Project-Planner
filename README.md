@@ -10,8 +10,10 @@ A small Flask planner for estimating nutrition needs and keeping track of TV sho
 - Optionally enter a desired weight to estimate daily protein at 1.6 g/kg of goal weight. This separate planning estimate does not change the current-weight calorie and macro tables.
 - Compare 0.25 and 0.5 kg/week fat-loss scenarios, with screening for overly restrictive plans.
 - Add, edit, and delete shows.
+- Choose Edit details to open a prefilled popup. Save your changes or dismiss it with Cancel, Escape, or a click outside.
+- Add or remove favourites from a show's action dialog. Favourites appear in a separate yellow-tinted list above other shows, with the selected sort applied within each list.
 - Set episodes remaining, minutes per episode, and episodes to watch each day.
-- Mark a day's viewing complete once per day; finished shows are removed automatically.
+- Mark a day's viewing complete once per day; finished shows remain visible with a Watched label until you explicitly delete them.
 - Sort by episodes, episode length, daily pace, or days remaining.
 - See the planned watch time remaining for today.
 
@@ -50,6 +52,15 @@ python -m pip install -r requirements.txt
 ### 2. Configure the database
 
 This step is needed only for the show planner.
+
+Run this once in your existing database's SQL editor before using favourites:
+
+```sql
+ALTER TABLE shows
+ADD COLUMN IF NOT EXISTS is_favourite BOOLEAN NOT NULL DEFAULT FALSE;
+```
+
+Favourite status is saved in the database and remains set when a show is completed.
 
 Set the connection URL for your existing database in the same terminal you will use to run the app:
 

@@ -99,6 +99,13 @@ def delete_show(show_id):
     return redirect(url_for("shows"))
 
 
+@app.route("/favourite_show/<int:show_id>", methods=["POST"])
+def favourite_show(show_id):
+    show_app.toggle_favourite(show_id)
+    return redirect(url_for("shows", sort_by=request.form.get("sort_by"),
+                            order=request.form.get("order", "desc")))
+
+
 @app.route("/edit_show/<int:show_id>")
 def edit_show(show_id):
     show_app.load_shows()

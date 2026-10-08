@@ -1,0 +1,11 @@
+.show-group { margin-top: 24px; }
+.show-group-heading { margin-bottom: 12px; }
+.show-card.is-favourite { background: #fffbeb; border-color: #fcd34d; }
+.show-card.is-favourite:hover, .show-card.is-favourite:focus {
+  border-color: #d97706;
+  box-shadow: 0 12px 30px rgba(217, 119, 6, .15);
+}
+.favourite-button { width: 100%; background: #fef3c7; color: #92400e; }
+.favourite-button:hover { background: #fde68a; }
+.edit-show-dialog { width: min(calc(100% - 24px), 640px); max-height: calc(100dvh - 32px); padding: 0; }
+.edit-show-dialog .show-form-card { margin: 0; border: 0; box-shadow: none; }

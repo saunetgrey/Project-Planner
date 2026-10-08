@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Show planner</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='shows.css') }}">
 </head>
 
 <body class="shows-page">
@@ -26,16 +27,21 @@
           <option value="asc" {{ 'selected' if order=='asc' else '' }}>Lowest first</option>
           <option value="desc" {{ 'selected' if order=='desc' else '' }}>Highest first</option>
         </select></label><button type="submit" class="button button-secondary">Apply</button></form>
-    <section class="show-list" aria-label="Shows">{% for show in shows %}<article class="show-card" tabindex="0"
+    {% for favourite, heading in [(true, 'Favourites'), (false, 'Other shows')] %}
+    <section class="show-group" aria-label="{{ heading }}">
+    <h2 class="show-group-heading">{{ heading }}</h2>
+    <div class="show-list">{% for show in shows if show.is_favourite == favourite %}<article class="show-card {{ 'is-favourite' if show.is_favourite else '' }}" tabindex="0"
         role="button" aria-haspopup="dialog" data-name="{{ show.name }}" data-episodes="{{ show.remaining_episodes }}"
         data-days="{{ show.days_remaining }}" data-per-day="{{ show.episodes_per_day }}"
+        data-watched="{{ 'true' if show.completed else 'false' }}"
+        data-favourite="{{ 'true' if show.is_favourite else 'false' }}"
+        data-favourite-url="{{ url_for('favourite_show', show_id=show.id) }}"
         data-complete-url="{{ url_for('complete_show', show_id=show.id) }}"
         data-edit-url="{{ url_for('edit_show', show_id=show.id, sort_by=sort_by, order=order) }}"
         data-delete-url="{{ url_for('delete_show', show_id=show.id) }}">
         <div class="show-card-topline">
           <h2>{{ show.name }}</h2><span
-            class="status {{ 'is-done-today' if show.last_completed_date == today else '' }}">{{ 'Watched today' if
-            show.last_completed_date == today else 'To watch' }}</span>
+            class="status {{ 'is-done-today' if show.completed or show.last_completed_date == today else '' }}">{{ 'Watched' if show.completed else ('Watched today' if show.last_completed_date == today else 'To watch') }}</span>
         </div>
         <div class="show-stats">
           <div><strong>{{ show.remaining_episodes }}</strong><span>episodes left</span></div>
@@ -44,13 +50,18 @@
           <div><strong>{{ show.minutes_per_episode }}</strong><span>min / episode</span></div>
         </div><span class="tap-hint">Tap for actions <span aria-hidden="true">›</span></span>
       </article>{% else %}<div class="empty-state">
-        <h2>No shows yet</h2>
-        <p>Add a show below and we’ll calculate your viewing plan.</p>
-      </div>{% endfor %}</section>
+        <h3>{{ 'No favourites yet' if favourite else 'No other shows' }}</h3>
+        <p>{{ 'Open a show and choose Add to favourites to pin it here.' if favourite else 'Add a show below or remove one from favourites to see it here.' }}</p>
+      </div>{% endfor %}</div></section>
+    {% endfor %}
     <section class="total-time">
       <div><span>Today’s watch time</span><strong>{{ total_hours }}h {{ remaining_minutes }}m</strong></div>
       <div><span>Shows in plan</span><strong>{{ total_rows }}</strong></div>
     </section>
+    {% if edit_show %}
+    <dialog class="show-dialog edit-show-dialog" id="edit-show-dialog" aria-labelledby="show-form-title"
+        data-cancel-url="{{ url_for('shows', sort_by=sort_by, order=order) }}">
+    {% endif %}
     <section class="show-form-card" aria-labelledby="show-form-title">
       <div>
         <p class="eyebrow">{{ 'EDITING' if edit_show else 'NEW SHOW' }}</p>
@@ -58,7 +69,7 @@
       </div>
       <form method="POST" action="{{ url_for('add_show') }}" class="show-form"><label class="field field-wide">Show
           name<input name="name" placeholder="e.g. The Bear" value="{{ edit_show.name if edit_show else '' }}"
-            required></label><label class="field">Total episodes<input name="episodes" type="number" min="1"
+            {{ 'autofocus' if edit_show else '' }} required></label><label class="field">Episodes remaining<input name="episodes" type="number" min="{{ 0 if edit_show else 1 }}"
             inputmode="numeric" placeholder="10" value="{{ edit_show.number_of_episodes if edit_show else '' }}"
             required></label><label class="field">Minutes per episode<input name="minutes" type="number" min="1"
             inputmode="numeric" placeholder="45" value="{{ edit_show.minutes_per_episode if edit_show else '' }}"
@@ -70,6 +81,7 @@
             class="button">{{ 'Save changes' if edit_show else 'Add show' }}</button></div>
       </form>
     </section>
+    {% if edit_show %}</dialog>{% endif %}
   </main>
   <dialog class="show-dialog" id="show-actions" aria-labelledby="dialog-title">
     <div class="dialog-heading">
@@ -79,11 +91,18 @@
       </div><button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button>
     </div>
     <p class="dialog-summary" id="dialog-summary"></p>
-    <div class="dialog-actions"><a class="button complete-button" id="complete-action" href="#">Mark today watched</a><a
+    <div class="dialog-actions">
+      <form id="favourite-form" method="post">
+        <input type="hidden" name="sort_by" value="{{ sort_by or '' }}">
+        <input type="hidden" name="order" value="{{ order }}">
+        <button class="button favourite-button" id="favourite-action" type="submit">Add to favourites</button>
+      </form>
+      <a class="button complete-button" id="complete-action" href="#">Mark today watched</a><a
         class="button button-secondary" id="edit-action" href="#">Edit details</a><a class="button button-danger"
         id="delete-action" href="#">Delete show</a></div>
   </dialog>
-  <script>const dialog = document.getElementById('show-actions'), title = document.getElementById('dialog-title'), summary = document.getElementById('dialog-summary'), complete = document.getElementById('complete-action'), edit = document.getElementById('edit-action'), remove = document.getElementById('delete-action'); function openActions(card) { title.textContent = card.dataset.name; summary.textContent = `${card.dataset.episodes} episodes left · ${card.dataset.days} days to go · ${card.dataset.perDay} per day`; complete.href = card.dataset.completeUrl; edit.href = card.dataset.editUrl; remove.href = card.dataset.deleteUrl; dialog.showModal() } document.querySelectorAll('.show-card').forEach(card => { card.addEventListener('click', () => openActions(card)); card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openActions(card) } }) }); document.querySelector('[data-close-dialog]').addEventListener('click', () => dialog.close()); dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close() }); remove.addEventListener('click', event => { if (!window.confirm(`Delete ${title.textContent}? This cannot be undone.`)) event.preventDefault() });</script>
+  <script>const dialog = document.getElementById('show-actions'), title = document.getElementById('dialog-title'), summary = document.getElementById('dialog-summary'), complete = document.getElementById('complete-action'), edit = document.getElementById('edit-action'), remove = document.getElementById('delete-action'); function openActions(card) { document.getElementById('favourite-form').action = card.dataset.favouriteUrl; document.getElementById('favourite-action').textContent = card.dataset.favourite === 'true' ? 'Remove from favourites' : 'Add to favourites'; title.textContent = card.dataset.name; summary.textContent = `${card.dataset.episodes} episodes left · ${card.dataset.days} days to go · ${card.dataset.perDay} per day`; complete.style.display = card.dataset.watched === 'true' ? 'none' : ''; complete.href = card.dataset.completeUrl; edit.href = card.dataset.editUrl; remove.href = card.dataset.deleteUrl; dialog.showModal() } document.querySelectorAll('.show-card').forEach(card => { card.addEventListener('click', () => openActions(card)); card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openActions(card) } }) }); document.querySelector('[data-close-dialog]').addEventListener('click', () => dialog.close()); dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close() }); remove.addEventListener('click', event => { if (!window.confirm(`Delete ${title.textContent}? This cannot be undone.`)) event.preventDefault() });</script>
+  <script src="{{ url_for('static', filename='show-edit.js') }}" defer></script>
 </body>
 
 </html>

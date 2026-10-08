@@ -10,7 +10,11 @@ class Show:
         self.remaining_episodes = number_of_episodes
         self.days_completed = 0
         self.last_completed_date = None
-        self.completed = False
+        self.is_favourite = False
+
+    @property
+    def completed(self):
+        return self.remaining_episodes <= 0
 
     @property
     def total_days(self):
@@ -22,4 +26,4 @@ class Show:
 
     @property
     def total_time_spent(self):
-        return self.minutes_per_episode * self.episodes_per_day
+        return self.minutes_per_episode * min(self.episodes_per_day, max(0, self.remaining_episodes))
