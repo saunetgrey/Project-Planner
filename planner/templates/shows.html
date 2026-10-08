@@ -17,7 +17,12 @@
       <h1>Your show plan</h1>
       <p class="intro">Tap a show to mark today’s episodes watched, edit it, or remove it.</p>
     </header>
-    <form method="GET" action="{{ url_for('shows') }}" class="sort-bar" aria-label="Sort shows"><label><span>Sort
+    <form method="GET" action="{{ url_for('shows') }}" class="sort-bar" aria-label="Filter and sort shows"><label><span>Streaming service</span><select name="service">
+          <option value="">All services</option>
+          {% for value, label in service_options %}
+          <option value="{{ value }}" {{ 'selected' if service_filter == value else '' }}>{{ label }}</option>
+          {% endfor %}
+        </select></label><label><span>Sort
           by</span><select name="sort_by">
           <option value="episodes" {{ 'selected' if sort_by=='episodes' else '' }}>Episodes left</option>
           <option value="minutes" {{ 'selected' if sort_by=='minutes' else '' }}>Minutes / episode</option>
@@ -37,12 +42,13 @@
         data-favourite="{{ 'true' if show.is_favourite else 'false' }}"
         data-favourite-url="{{ url_for('favourite_show', show_id=show.id) }}"
         data-complete-url="{{ url_for('complete_show', show_id=show.id) }}"
-        data-edit-url="{{ url_for('edit_show', show_id=show.id, sort_by=sort_by, order=order) }}"
+        data-edit-url="{{ url_for('edit_show', show_id=show.id, sort_by=sort_by, order=order, service=service_filter) }}"
         data-delete-url="{{ url_for('delete_show', show_id=show.id) }}">
         <div class="show-card-topline">
           <h2>{{ show.name }}</h2><span
             class="status {{ 'is-done-today' if show.completed or show.last_completed_date == today else '' }}">{{ 'Watched' if show.completed else ('Watched today' if show.last_completed_date == today else 'To watch') }}</span>
         </div>
+        <p class="streaming-service">Streaming service: {{ show.streaming_service or 'Not specified' }}</p>
         <div class="show-stats">
           <div><strong>{{ show.remaining_episodes }}</strong><span>episodes left</span></div>
           <div><strong>{{ show.days_remaining }}</strong><span>days left</span></div>
@@ -56,11 +62,11 @@
     {% endfor %}
     <section class="total-time">
       <div><span>Today’s watch time</span><strong>{{ total_hours }}h {{ remaining_minutes }}m</strong></div>
-      <div><span>Shows in plan</span><strong>{{ total_rows }}</strong></div>
+      <div><span>Shows in list</span><strong>{{ total_rows }}</strong></div>
     </section>
     {% if edit_show %}
     <dialog class="show-dialog edit-show-dialog" id="edit-show-dialog" aria-labelledby="show-form-title"
-        data-cancel-url="{{ url_for('shows', sort_by=sort_by, order=order) }}">
+        data-cancel-url="{{ url_for('shows', sort_by=sort_by, order=order, service=service_filter) }}">
     {% endif %}
     <section class="show-form-card" aria-labelledby="show-form-title">
       <div>
@@ -69,7 +75,9 @@
       </div>
       <form method="POST" action="{{ url_for('add_show') }}" class="show-form"><label class="field field-wide">Show
           name<input name="name" placeholder="e.g. The Bear" value="{{ edit_show.name if edit_show else '' }}"
-            {{ 'autofocus' if edit_show else '' }} required></label><label class="field">Episodes remaining<input name="episodes" type="number" min="{{ 0 if edit_show else 1 }}"
+            {{ 'autofocus' if edit_show else '' }} required></label><label class="field field-wide">Streaming service (optional)<input name="streaming_service"
+            placeholder="e.g. Netflix, Disney+, Prime Video"
+            value="{{ (edit_show.streaming_service or '') if edit_show else '' }}"></label><label class="field">Episodes remaining<input name="episodes" type="number" min="{{ 0 if edit_show else 1 }}"
             inputmode="numeric" placeholder="10" value="{{ edit_show.number_of_episodes if edit_show else '' }}"
             required></label><label class="field">Minutes per episode<input name="minutes" type="number" min="1"
             inputmode="numeric" placeholder="45" value="{{ edit_show.minutes_per_episode if edit_show else '' }}"
@@ -77,7 +85,7 @@
             inputmode="numeric" placeholder="1" value="{{ edit_show.episodes_per_day if edit_show else '' }}"
             required></label><input type="hidden" name="edit_id" value="{{ edit_show.id if edit_show else '' }}">
         <div class="form-actions">{% if edit_show %}<a class="button button-text"
-            href="{{ url_for('shows', sort_by=sort_by, order=order) }}">Cancel</a>{% endif %}<button type="submit"
+            href="{{ url_for('shows', sort_by=sort_by, order=order, service=service_filter) }}">Cancel</a>{% endif %}<button type="submit"
             class="button">{{ 'Save changes' if edit_show else 'Add show' }}</button></div>
       </form>
     </section>

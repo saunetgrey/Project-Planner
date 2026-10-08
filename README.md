@@ -74,7 +74,7 @@ $env:DATABASE_URL = "postgresql://username:password@hostname:5432/planner"
 export DATABASE_URL="postgresql://username:password@hostname:5432/planner"
 ```
 
-`.env.example` documents the required configuration. The app does not load `.env` files automatically. Database connections use `sslmode=require`, so the server must support SSL. The app uses the existing `shows` table; it does not create the database or tables.
+The app reads `DATABASE_URL` from your environment and does not load `.env` files automatically. Database connections use `sslmode=require`, so the server must support SSL. The app uses the existing `shows` table; it does not create the database or tables. Streaming-service filtering also requires the existing `streaming_service` text column.
 
 ### 3. Run locally
 
@@ -102,7 +102,6 @@ gunicorn app:app
 │   ├── services/           # Nutrition calculations, persistence and progress
 │   ├── static/             # Shared styles, nutrition styles and JavaScript
 │   └── templates/          # Jinja page templates
-├── .env.example            # Configuration reference
 ├── .python-version         # Python version for development
 └── requirements.txt        # Pinned Python dependencies
 ```
