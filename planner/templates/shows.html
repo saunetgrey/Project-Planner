@@ -32,6 +32,10 @@
           <option value="asc" {{ 'selected' if order=='asc' else '' }}>Lowest first</option>
           <option value="desc" {{ 'selected' if order=='desc' else '' }}>Highest first</option>
         </select></label><button type="submit" class="button button-secondary">Apply</button></form>
+    <section class="total-time" aria-label="Summary of favourites and other shows">
+      <div><span>Today’s watch time</span><strong>{{ total_hours }}h {{ remaining_minutes }}m</strong></div>
+      <div><span>Shows across both lists</span><strong>{{ total_rows }}</strong></div>
+    </section>
     {% for favourite, heading in [(true, 'Favourites'), (false, 'Other shows')] %}
     <section class="show-group" aria-label="{{ heading }}">
     <h2 class="show-group-heading">{{ heading }}</h2>
@@ -60,10 +64,6 @@
         <p>{{ 'Open a show and choose Add to favourites to pin it here.' if favourite else 'Add a show below or remove one from favourites to see it here.' }}</p>
       </div>{% endfor %}</div></section>
     {% endfor %}
-    <section class="total-time">
-      <div><span>Today’s watch time</span><strong>{{ total_hours }}h {{ remaining_minutes }}m</strong></div>
-      <div><span>Shows in list</span><strong>{{ total_rows }}</strong></div>
-    </section>
     {% if edit_show %}
     <dialog class="show-dialog edit-show-dialog" id="edit-show-dialog" aria-labelledby="show-form-title"
         data-cancel-url="{{ url_for('shows', sort_by=sort_by, order=order, service=service_filter) }}">
