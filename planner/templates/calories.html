@@ -16,7 +16,7 @@
   <header class="page-header">
     <p class="eyebrow">YOUR DAILY FUEL</p>
     <h1>Track calories</h1>
-    <p class="intro">Get to know your energy needs. Compare a maintenance plan and fat-loss scenarios.</p>
+    <p class="intro">Get to know your energy needs. Compare maintenance, weight-loss or weight-gain scenarios based on your desired weight.</p>
   </header>
   <section class="show-form-card" aria-labelledby="measurements-title">
     <div><p class="eyebrow">01 / YOUR STARTING POINT</p><h2 id="measurements-title">Your measurements</h2></div>
@@ -44,7 +44,7 @@
       <label class="field">Desired weight (kg, optional)
         <input name="goal_weight" id="goal-weight" type="number" min="30" max="350" step="0.1" value="{{ values.get('goal_weight', '') }}" aria-describedby="goal-weight-help">
       </label>
-      <p class="helper" id="goal-weight-help">Enter a goal weight to see a separate daily protein estimate using 1.6 g per kg of that weight.</p>
+      <p class="helper" id="goal-weight-help">Enter a desired weight to choose gain or loss targets and see a separate protein estimate at 1.6 g/kg of goal weight. Leave blank to compare loss targets.</p>
       <details class="field-wide measurement-help"><summary>How to measure</summary>
         <p>Use a relaxed stance and a level tape without compressing the skin. Measure height without shoes and neck just below the larynx. For the male equation, measure the abdomen at the navel. For the female equation, measure the natural waist at its narrowest point and hips at the widest point. Use centimeters throughout.</p>
         <p>These equations use sex-specific coefficients, not gender identity, and may be less suitable during hormone therapy or for some body types. Tape measurements provide an estimate, not a clinical body-composition assessment.</p>
@@ -94,20 +94,31 @@
       </article>
     </div>
     <article class="plan-card maintenance-card"><p class="eyebrow">MAINTAIN</p><h3>Maintain your current weight</h3><p class="helper">Estimated daily energy use including your selected activity level.</p>{{ totals(result.maintenance) }}</article>
-    <div class="section-heading"><p class="eyebrow">FAT LOSS</p><h3>Compare weekly loss targets</h3><p class="helper">Rough energy-deficit scenarios using 7,700 kcal/kg. Actual loss includes changes in water and lean tissue; these are not predictions of pure fat loss. Your needs change as your weight changes.</p></div>
-    <div class="plan-grid">{% for scenario in result.loss %}
-      <article class="plan-card"><p class="eyebrow">LOSS TARGET</p><h3>{{ scenario.rate }} kg / week</h3>
+    {% if result.goal_direction == 'maintenance' %}
+    <p class="helper">Your desired weight matches your current weight. Use the maintenance plan above.</p>
+    {% else %}
+    <div class="section-heading"><p class="eyebrow">{{ 'WEIGHT GAIN' if result.goal_direction == 'gain' else 'FAT LOSS' }}</p><h3>Compare weekly {{ result.goal_direction }} targets</h3>
+      {% if result.goal_direction == 'gain' %}
+      <p class="helper">Rough surplus scenarios using a simplified 7,700 kcal/kg assumption, not a prediction of actual gain. These targets refer to total body weight, not muscle gain. Adjust using your weight trend; energy needs change over time.</p>
+      {% else %}
+      <p class="helper">Rough energy-deficit scenarios using 7,700 kcal/kg. Actual loss includes changes in water and lean tissue; these are not predictions of pure fat loss. Your needs change as your weight changes.</p>
+      {% endif %}
+    </div>
+    <div class="plan-grid">{% for scenario in result.scenarios %}
+      <article class="plan-card"><p class="eyebrow">{{ result.goal_direction|upper }} TARGET</p><h3>{{ scenario.rate }} kg / week</h3>
       {% if scenario.reason %}<p class="caution">{{ scenario.reason }}</p>{% else %}{{ totals(scenario.plan) }}{% endif %}</article>
     {% endfor %}</div>
+    {% endif %}
     <p class="helper results-note">Weekly totals are seven times the rounded daily values. Follow your average weight and training performance over a few weeks and adjust gradually. Screening limits do not establish that every displayed plan is suitable for you.</p>
   </section>
   {% endif %}
   <details class="method-card">
     <summary>Calculation methods &amp; sources</summary>
     <p>Resting energy uses Mifflin–St Jeor: 10 × weight (kg) + 6.25 × height (cm) − 5 × age, plus 5 for the male equation or minus 161 for the female equation. Activity multipliers range from 1.2 to 1.9. Body fat uses historical Navy circumference equations with measurements converted to inches.</p>
-    <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg for maintenance and 2.0 g/kg for fat loss. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat).</p>
+    <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg of current weight for maintenance and weight gain, and 2.0 g/kg for fat loss. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat). Gain scenarios add approximately 275 or 550 kcal/day; loss scenarios subtract those amounts.</p>
     <p>Fat-loss plans below 1,200 kcal/day (female equation) or 1,500 (male equation), over 1% body weight/week, or for BMI below 18.5 are withheld as conservative screening choices. Personal needs may be higher.</p>
     <ul>
+      <li><a href="https://www.nhs.uk/live-well/healthy-weight/managing-your-weight/healthy-ways-to-gain-weight/">NHS: gradual weight gain</a> (the weekly-rate conversion here is a simplified planning assumption).</li>
       <li><a href="https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html">CDC: adult BMI categories and screening limitations</a></li>
       <li><a href="https://www.nasm.org/resource-center/blog/nutrition/how-much-protein-should-you-eat-per-day-to-support-weight-loss">NASM: protein planning at 1.6 g/kg of body weight</a> (using desired weight here is a planning choice).</li>
       <li><a href="https://pubmed.ncbi.nlm.nih.gov/2305711/">Mifflin–St Jeor resting energy study</a></li>

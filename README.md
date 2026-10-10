@@ -9,6 +9,7 @@ A small Flask planner for estimating nutrition needs and keeping track of TV sho
 - View current BMI and its screening category (adult categories for ages 20+).
 - Optionally enter a desired weight to estimate daily protein at 1.6 g/kg of goal weight. This separate planning estimate does not change the current-weight calorie and macro tables.
 - Compare 0.25 and 0.5 kg/week fat-loss scenarios, with screening for overly restrictive plans.
+- Desired weight above current weight switches the comparison to 0.25 and 0.5 kg/week body-weight gain scenarios; below current weight shows loss scenarios. Matching weights shows maintenance only; leaving the goal blank defaults to loss. Gain scenarios are rough surplus estimates, not predictions of muscle gain.
 - Add, edit, and delete shows.
 - Choose Edit details to open a prefilled popup. Save your changes or dismiss it with Cancel, Escape, or a click outside.
 - Add or remove favourites from a show's action dialog. Favourites appear in a separate yellow-tinted list above other shows, with the selected sort applied within each list.

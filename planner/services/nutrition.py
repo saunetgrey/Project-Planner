@@ -76,29 +76,32 @@ def calculate_plan(values):
     else:
         bmi_category = "Obesity"
     goal_protein = None
+    goal_direction = "loss"
     if str(values.get("goal_weight", "")).strip():
         goal_weight = number(values, "goal_weight", "desired weight (kg)", 30, 350)
         goal_protein = {"weight": goal_weight, "daily": round(goal_weight * 1.6)}
+        goal_direction = "gain" if goal_weight > weight else "loss" if goal_weight < weight else "maintenance"
     floor = 1500 if sex == "male" else 1200
-    loss = []
-    for rate in (0.25, 0.5):
-        calories = maintenance - rate * 7700 / 7
+    scenarios = []
+    for rate in (() if goal_direction == "maintenance" else (0.25, 0.5)):
+        calories = maintenance + (1 if goal_direction == "gain" else -1) * rate * 7700 / 7
         reason = None
-        if bmi < 18.5:
+        if goal_direction == "loss" and bmi < 18.5:
             reason = "Fat-loss targets are not shown for a BMI below 18.5. Seek an individual assessment."
-        elif calories < floor:
+        elif goal_direction == "loss" and calories < floor:
             reason = f"Below this calculator's {floor:,} kcal/day screening limit. Choose a slower goal or seek individual advice."
         elif rate / weight > 0.01:
             reason = "Exceeds 1% of your body weight per week. Choose a slower goal."
-        plan = macros(calories, weight, 2.0) if not reason else None
+        plan = macros(calories, weight, 1.6 if goal_direction == "gain" else 2.0) if not reason else None
         if not plan and not reason:
             reason = "This calorie budget cannot accommodate the selected macro allocation."
-        loss.append({"rate": rate, "plan": plan, "reason": reason})
+        scenarios.append({"rate": rate, "plan": plan, "reason": reason})
     return {
         "bmi": round(bmi, 2), "bmi_category": bmi_category,
         "goal_protein": goal_protein,
         "body_fat": round(body_fat, 1), "bmr": round(bmr),
         "fat_mass": round(weight * body_fat / 100, 1),
         "lean_mass": round(weight * (1 - body_fat / 100), 1),
-        "maintenance": macros(maintenance, weight, 1.6), "loss": loss,
+        "maintenance": macros(maintenance, weight, 1.6),
+        "goal_direction": goal_direction, "scenarios": scenarios,
     }
