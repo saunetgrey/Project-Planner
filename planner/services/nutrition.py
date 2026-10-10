@@ -92,7 +92,8 @@ def calculate_plan(values):
             reason = f"Below this calculator's {floor:,} kcal/day screening limit. Choose a slower goal or seek individual advice."
         elif rate / weight > 0.01:
             reason = "Exceeds 1% of your body weight per week. Choose a slower goal."
-        plan = macros(calories, weight, 1.6 if goal_direction == "gain" else 2.0) if not reason else None
+        protein_weight = goal_weight if goal_direction == "gain" else weight
+        plan = macros(calories, protein_weight, 1.6 if goal_direction == "gain" else 2.0) if not reason else None
         if not plan and not reason:
             reason = "This calorie budget cannot accommodate the selected macro allocation."
         timeline = None

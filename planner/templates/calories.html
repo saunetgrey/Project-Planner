@@ -86,7 +86,7 @@
         {% if result.goal_protein %}
         <strong>{{ result.goal_protein.daily }} <small>g / day</small></strong>
         <p>For a desired weight of {{ result.goal_protein.weight }} kg</p>
-        <p class="helper">{{ result.goal_protein.weight }} kg × 1.6 g/kg. This goal-weight calculation is a planning estimate, not a measured requirement or an assessment of whether your goal weight is suitable. The calorie-plan tables still use your current weight.</p>
+        <p class="helper">{{ result.goal_protein.weight }} kg × 1.6 g/kg. This goal-weight calculation is a planning estimate, not a measured requirement or an assessment of whether your goal weight is suitable. Gain tables use this same protein target. Maintenance and loss tables use current-weight protein allocations.</p>
         {% else %}
         <p class="helper">Add your desired weight in the form and calculate again to see your daily protein estimate.</p>
         {% endif %}
@@ -138,7 +138,7 @@
   <details class="method-card">
     <summary>Calculation methods &amp; sources</summary>
     <p>Resting energy uses Mifflin–St Jeor: 10 × weight (kg) + 6.25 × height (cm) − 5 × age, plus 5 for the male equation or minus 161 for the female equation. Activity multipliers range from 1.2 to 1.9. Body fat uses historical Navy circumference equations with measurements converted to inches.</p>
-    <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg of current weight for maintenance and weight gain, and 2.0 g/kg for fat loss. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat). Gain scenarios add approximately 275 or 550 kcal/day; loss scenarios subtract those amounts.</p>
+    <p>Macro allocations are planning choices, not measured requirements: protein is 1.6 g/kg of current weight for maintenance, 1.6 g/kg of desired weight for weight gain, and 2.0 g/kg of current weight for fat loss. Fat supplies 30% of calories; carbs use the remainder (4 kcal/g for protein and carbs, 9 kcal/g for fat). Gain scenarios add approximately 275 or 550 kcal/day; loss scenarios subtract those amounts.</p>
     <p>Fat-loss plans below 1,200 kcal/day (female equation) or 1,500 (male equation), over 1% body weight/week, or for BMI below 18.5 are withheld as conservative screening choices. Personal needs may be higher.</p>
     <ul>
       <li><a href="https://www.nhs.uk/live-well/healthy-weight/managing-your-weight/healthy-ways-to-gain-weight/">NHS: gradual weight gain</a> (the weekly-rate conversion here is a simplified planning assumption).</li>
