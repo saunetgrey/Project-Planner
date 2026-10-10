@@ -109,6 +109,29 @@
       {% if scenario.reason %}<p class="caution">{{ scenario.reason }}</p>{% else %}{{ totals(scenario.plan) }}{% endif %}</article>
     {% endfor %}</div>
     {% endif %}
+    <section class="plan-card goal-timeline" aria-labelledby="timeline-title">
+      <p class="eyebrow">YOUR TIMELINE</p><h3 id="timeline-title">Time to reach desired weight</h3>
+      {% if not result.goal_protein %}
+      <p class="helper"><a href="#goal-weight">Enter your desired weight</a> and calculate again to see estimated days, weeks, months and years.</p>
+      {% elif result.goal_direction == 'maintenance' %}
+      <p class="helper">You are already at your desired weight: 0 days, 0 weeks, 0 months and 0 years.</p>
+      {% else %}
+      <p class="helper">To reach {{ result.goal_protein.weight }} kg, assuming each weekly {{ result.goal_direction }} rate stays constant:</p>
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Time to goal by weekly target">
+        <table class="macro-table">
+          <thead><tr><th scope="col">Weekly target</th><th scope="col">Days</th><th scope="col">Weeks</th><th scope="col">Months</th><th scope="col">Years</th></tr></thead>
+          <tbody>{% for scenario in result.scenarios %}
+            <tr><th scope="row">{{ scenario.rate }} kg</th>
+              {% if scenario.timeline %}
+              <td>{{ scenario.timeline.days }}</td><td>{{ scenario.timeline.weeks }}</td><td>{{ scenario.timeline.months }}</td><td>{{ scenario.timeline.years }}</td>
+              {% else %}<td colspan="4">Not shown: {{ scenario.reason }}</td>{% endif %}
+            </tr>
+          {% endfor %}</tbody>
+        </table>
+      </div>
+      <p class="helper">These are equivalent durations, not amounts to add together. Days are rounded up; months use 30.44 days and years use 365.25 days. This is a simple distance-to-goal calculation, not a prediction of how your body will respond. Real progress varies and calorie needs change along the way.</p>
+      {% endif %}
+    </section>
     <p class="helper results-note">Weekly totals are seven times the rounded daily values. Follow your average weight and training performance over a few weeks and adjust gradually. Screening limits do not establish that every displayed plan is suitable for you.</p>
   </section>
   {% endif %}

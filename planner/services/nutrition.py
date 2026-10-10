@@ -95,7 +95,15 @@ def calculate_plan(values):
         plan = macros(calories, weight, 1.6 if goal_direction == "gain" else 2.0) if not reason else None
         if not plan and not reason:
             reason = "This calorie budget cannot accommodate the selected macro allocation."
-        scenarios.append({"rate": rate, "plan": plan, "reason": reason})
+        timeline = None
+        if goal_protein and plan:
+            weeks = abs(goal_weight - weight) / rate
+            days = weeks * 7
+            timeline = {"days": math.ceil(round(days, 8)), "weeks": round(weeks, 2),
+                        "months": round(days / (365.25 / 12), 2),
+                        "years": round(days / 365.25, 2)}
+        scenarios.append({"rate": rate, "plan": plan, "reason": reason,
+                          "timeline": timeline})
     return {
         "bmi": round(bmi, 2), "bmi_category": bmi_category,
         "goal_protein": goal_protein,

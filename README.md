@@ -7,6 +7,7 @@ A small Flask planner for estimating nutrition needs and keeping track of TV sho
 - Track calories on the home page (`/`) using weight, height, age, sex used for equations, activity level, waist, neck, and (for the female equation) hip measurements.
 - Estimate body fat, fat and lean mass, maintenance calories, and daily/weekly protein, carbs, and fat.
 - View current BMI and its screening category (adult categories for ages 20+).
+- Compare estimated days, weeks, months and years to reach your desired weight at each weekly target. Timelines assume a constant rate and are omitted for withheld plans.
 - Optionally enter a desired weight to estimate daily protein at 1.6 g/kg of goal weight. This separate planning estimate does not change the current-weight calorie and macro tables.
 - Compare 0.25 and 0.5 kg/week fat-loss scenarios, with screening for overly restrictive plans.
 - Desired weight above current weight switches the comparison to 0.25 and 0.5 kg/week body-weight gain scenarios; below current weight shows loss scenarios. Matching weights shows maintenance only; leaving the goal blank defaults to loss. Gain scenarios are rough surplus estimates, not predictions of muscle gain.

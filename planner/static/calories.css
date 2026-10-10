@@ -35,6 +35,8 @@ details p { margin: 14px 0 0; }
 .macro-table small { color: #526175; font-weight: 400; }
 .macro-table tbody tr:first-child { color: #4338ca; font-weight: 800; }
 .results-note { margin-top: 20px; }
+.goal-timeline { margin-top: 24px; }
+.goal-timeline td[colspan] { white-space: normal; text-align: left; }
 .method-card { margin: 30px 0 10px; padding: 20px; border: 1px solid #cbd5e1; border-radius: 14px; }
 .method-card a { color: #4338ca; }
 .method-card li { margin-top: 8px; }
