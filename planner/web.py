@@ -69,6 +69,9 @@ def render_show_page(edit_show=None):
     visible_shows.sort(key=SORT_KEYS[sort_by], reverse=order == "desc")
     total_minutes = sum(show.total_time_spent for show in visible_shows
                         if show.last_completed_date != today)
+    favourite_shows = [show for show in visible_shows if show.is_favourite]
+    favourite_minutes = sum(show.total_time_spent for show in favourite_shows
+                            if show.last_completed_date != today)
     response = make_response(render_template(
         "shows.html",
         shows=visible_shows,
@@ -81,6 +84,9 @@ def render_show_page(edit_show=None):
         total_hours=total_minutes // 60,
         remaining_minutes=total_minutes % 60,
         total_rows=len(visible_shows),
+        favourite_rows=len(favourite_shows),
+        favourite_hours=favourite_minutes // 60,
+        favourite_minutes=favourite_minutes % 60,
     ))
     if "sort_by" in request.args or "order" in request.args:
         response.set_cookie("shows_sort_by", sort_by, max_age=31536000, samesite="Lax")

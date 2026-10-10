@@ -1,5 +1,14 @@
 .show-group { margin-top: 24px; }
 .show-group-heading { margin-bottom: 12px; }
+.show-group-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  width: 100%; min-height: 44px; padding: 8px 0; border: 0;
+  background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.show-group-toggle-label { color: #4338ca; font-size: .85rem; }
+.show-group-toggle:focus-visible { outline: 3px solid #818cf8; outline-offset: 4px; border-radius: 6px; }
+.show-list[hidden] { display: none; }
+.favourite-summary { margin: 0 0 16px; background: #fffbeb; border-color: #fcd34d; }
 .show-card.is-favourite { background: #fffbeb; border-color: #fcd34d; }
 .show-card.is-favourite:hover, .show-card.is-favourite:focus {
   border-color: #d97706;

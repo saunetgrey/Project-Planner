@@ -38,8 +38,19 @@
     </section>
     {% for favourite, heading in [(true, 'Favourites'), (false, 'Other shows')] %}
     <section class="show-group" aria-label="{{ heading }}">
-    <h2 class="show-group-heading">{{ heading }}</h2>
-    <div class="show-list">{% for show in shows if show.is_favourite == favourite %}<article class="show-card {{ 'is-favourite' if show.is_favourite else '' }}" tabindex="0"
+    <h2 class="show-group-heading">
+      <button type="button" class="show-group-toggle" aria-expanded="true"
+          aria-controls="{{ 'favourite-shows' if favourite else 'other-shows' }}">
+        <span>{{ heading }}</span><span class="show-group-toggle-label">Collapse</span>
+      </button>
+    </h2>
+    {% if favourite %}
+    <section class="total-time favourite-summary" aria-label="Favourites summary">
+      <div><span>Favourites watch time remaining today</span><strong>{{ favourite_hours }}h {{ favourite_minutes }}m</strong></div>
+      <div><span>Favourite shows</span><strong>{{ favourite_rows }}</strong></div>
+    </section>
+    {% endif %}
+    <div class="show-list" id="{{ 'favourite-shows' if favourite else 'other-shows' }}">{% for show in shows if show.is_favourite == favourite %}<article class="show-card {{ 'is-favourite' if show.is_favourite else '' }}" tabindex="0"
         role="button" aria-haspopup="dialog" data-name="{{ show.name }}" data-episodes="{{ show.remaining_episodes }}"
         data-days="{{ show.days_remaining }}" data-per-day="{{ show.episodes_per_day }}"
         data-watched="{{ 'true' if show.completed else 'false' }}"
@@ -111,6 +122,7 @@
   </dialog>
   <script>const dialog = document.getElementById('show-actions'), title = document.getElementById('dialog-title'), summary = document.getElementById('dialog-summary'), complete = document.getElementById('complete-action'), edit = document.getElementById('edit-action'), remove = document.getElementById('delete-action'); function openActions(card) { document.getElementById('favourite-form').action = card.dataset.favouriteUrl; document.getElementById('favourite-action').textContent = card.dataset.favourite === 'true' ? 'Remove from favourites' : 'Add to favourites'; title.textContent = card.dataset.name; summary.textContent = `${card.dataset.episodes} episodes left · ${card.dataset.days} days to go · ${card.dataset.perDay} per day`; complete.style.display = card.dataset.watched === 'true' ? 'none' : ''; complete.href = card.dataset.completeUrl; edit.href = card.dataset.editUrl; remove.href = card.dataset.deleteUrl; dialog.showModal() } document.querySelectorAll('.show-card').forEach(card => { card.addEventListener('click', () => openActions(card)); card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openActions(card) } }) }); document.querySelector('[data-close-dialog]').addEventListener('click', () => dialog.close()); dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close() }); remove.addEventListener('click', event => { if (!window.confirm(`Delete ${title.textContent}? This cannot be undone.`)) event.preventDefault() });</script>
   <script src="{{ url_for('static', filename='show-edit.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='show-lists.js') }}" defer></script>
 </body>
 
 </html>
