@@ -62,6 +62,8 @@ def render_show_page(edit_show=None):
     today = date.today()
     visible_shows = []
     for show in show_app.shows:
+        if show.is_favourite and show.completed:
+            continue
         service = (show.streaming_service or "").strip()
         key = "service:" + service.casefold() if service else "unspecified"
         if not service_filter or key == service_filter:
